@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Text, NoSelect, type ScrollBoxHandle } from '../ui.js'
-import { getPointerGestureSnapshot, subscribePointerGesture } from '../ink/pointer-gesture.js'
+import { useDismissOnPointerGesture } from '../ink/hooks/use-dismiss-on-pointer-gesture.js'
 import { stringWidth } from '../ink/stringWidth.js'
 import {
   RAIL_WIDTH,
@@ -135,11 +135,7 @@ export function TimelineRail({
   // A held button (drag-select) stops hover dispatch, so an already-shown
   // card would never see its onMouseLeave and would stay frozen over the
   // text being selected. Dismiss card + pending dwell on the rising edge.
-  React.useEffect(() => {
-    return subscribePointerGesture(() => {
-      if (getPointerGestureSnapshot()) clearDwell()
-    })
-  }, [clearDwell])
+  useDismissOnPointerGesture(clearDwell)
 
   if (!handle) return null
   const viewport = handle.getViewportHeight()

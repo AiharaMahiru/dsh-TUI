@@ -10,7 +10,8 @@
  * position chip) subscribe and dismiss themselves on the rising edge.
  *
  * Writer: `Ink.setPointerGestureActive` (the App `onPointerGestureChange`
- * callback). Readers: `useSyncExternalStore` consumers in components.
+ * callback). Reader: `useDismissOnPointerGesture` — the shared hook the
+ * hover-card owners use for rising-edge dismissal.
  */
 let active = false
 const listeners = new Set<() => void>()
@@ -23,7 +24,7 @@ export function subscribePointerGesture(listener: () => void): () => void {
   }
 }
 
-/** Stable snapshot for useSyncExternalStore (boolean identity). */
+/** Current latch state; true only reads as "dismiss" on the rising edge. */
 export function getPointerGestureSnapshot(): boolean {
   return active
 }
