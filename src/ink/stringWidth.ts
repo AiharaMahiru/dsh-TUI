@@ -38,10 +38,11 @@ const ambiguousAsWide = (() => {
  * This is a more accurate alternative to the string-width package that correctly handles
  * characters like ⚠ (U+26A0) which string-width incorrectly reports as width 2.
  *
- * The implementation uses eastAsianWidth directly, with the ambiguous-width
- * policy decided once at startup by locale (see `ambiguousAsWide` below):
- * CJK locales measure ambiguous as wide, Western contexts as narrow — the
- * Unicode recommendation followed by wcwidth.
+ * The implementation uses eastAsianWidth directly with the ambiguous-width
+ * policy pinned to NARROW (width 1 — the Unicode Western-context
+ * recommendation) unless DSH_TUI_AMBIGUOUS_WIDE opts the model into
+ * agreeing with a CJK terminal that paints ambiguous glyphs wide (see
+ * `ambiguousAsWide` below).
  */
 function stringWidthJavaScript(str: string): number {
   if (typeof str !== 'string' || str.length === 0) {

@@ -2763,8 +2763,11 @@ export function PromptInput({
   // this row's stats→preview→hint truncation arithmetic all runs through
   // stringWidth — a painted-wide separator shifts every segment right by
   // one column per separator and the row reads as overlapping text.
-  // U+30FB is unambiguously Wide: model and CJK terminal agree at 2 cells
-  // (Western terminals paint it wide too — no misalignment either way).
+  // U+30FB is officially Ambiguous too, but get-east-asian-width hardcodes
+  // it Wide and mainstream terminals (Western included) paint it 2 cells —
+  // the model and the painted width agree in practice. A wcwidth-strict
+  // Western terminal painting it 1 cell would mirror the old misalignment;
+  // DSH_TUI_AMBIGUOUS_WIDE=1 is the escape hatch for either direction.
   const foldBadge = `▸ ${stats}`
   const foldHint = t('input-fold-hover')
   const foldPreviewWidth =
