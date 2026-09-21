@@ -214,7 +214,7 @@ deleted. Full boundary and gate list:
 | `Tab` | Complete `/` commands or `@` files (keep drilling into directories); **while the model is working = follow-up** (queued after the current turn) |
 | `Ctrl+C` | Interrupt the current turn; press again while the interrupt is still settling to force-exit; press twice while idle to exit; **with an active mouse selection in the prompt, copies it to the clipboard and keeps it** |
 | `Esc` | Close an open image preview; close the command/file menu; **with an active selection in the prompt: only clears the selection**; double-press while idle clears the input; **double-press on empty input = time rewind** |
-| `←` (empty input) | **Background this session and open the agent view** (with text, ← moves the caret as usual) |
+| `←` (empty input) | **Background this session and open the session-management screen** |
 | `Ctrl+O` | Expand/collapse details (full thinking text, tool arguments and output) |
 | `Ctrl+Shift+E` | Expand the fullscreen draft editor (Enter = newline, `Ctrl+Enter` = send, `Esc` = collapse keeping the draft; line numbers, wheel scrolling, click/drag selection) |
 | `Ctrl+R` | History search |
@@ -291,28 +291,13 @@ so keep using `Ctrl`.
 
 > Unknown commands are sent to the model as ordinary messages (e.g. in a composition where `/permission` is not mounted).
 
-**Agent view** (`/agentview`):
+**Background sessions** (`/bg`, or `←` on an empty prompt):
 
-One full-screen surface lists every session in this process: the attached conversation, background sessions dispatched here, and stopped TUI sessions persisted on disk. The header shows `model · directory` and state counts (awaiting input · working · completed); rows are grouped by state (needs input > working > failed > completed > idle > stopped), and working rows animate their glyph. Each row includes a one-line activity summary derived from the session's own output (no extra model calls); a row waiting on input shows the question it is blocked on. **Only sessions this TUI dispatched, backgrounded, or attached to from the view are listed** — the ordinary `/resume` history and sessions created by other front doors (e.g. web) never appear.
+`/bg` (alias `/background`) moves the current session to the background and keeps it running, switches the terminal to a fresh session, and opens the session-management screen (same screen as `/agentview`). `←` on an empty prompt does the same; `Esc` leaves that screen back to the session you just backgrounded (picking a session in the list takes precedence), and the prompt footer shows `← N agents` while a background session waits on you.
 
-| Key | Action |
-| --- | --- |
-| `↑/↓`, `PgUp/PgDn` | Move between rows |
-| `Enter` / `→` | Attach to the selected session (with input text: dispatch it) |
-| `Shift+Enter` | Dispatch and attach immediately |
-| `Space` | Toggle the peek panel (when the input is empty); type a reply inside and `Enter` to send |
-| `Ctrl+X` | Stop a background session; press again within 2s to delete it (log removed) |
-| `Ctrl+R` | Rename the selected session |
-| `Esc` | Close peek → clear input → exit; **when opened via ← `/bg`, the final Esc returns to the backgrounded session** |
-| `Ctrl+C` | Clear input; press again to exit |
-| `?` | Show all shortcuts |
-
-- Type a task in the input at the bottom and press `Enter` to dispatch a **background session**: it runs independently inside this process (turns, tools, approvals all work) without you watching it.
-- **Press `←` on an empty prompt** to jump straight into the view: the attached session moves to the background — it keeps running — the terminal lands on a fresh session, and the view opens (same as `/bg`), with a "Your conversation moved to the background — Enter opens it · Esc returns to it · Ctrl+C twice quits" notice on top. The prompt footer keeps a live "← N agents" count whenever background sessions are waiting on you.
-- A background session that needs approval shows as **needs input**; the approval panel pops up right inside the view and is answered there (labelled with its session).
-- `/bg` (alias `/background`) moves the attached session to the background — it keeps running — switches the terminal to a fresh session, and opens the view. `Enter` on any row switches back.
-- Peek and reply work live for running sessions; a stopped session needs an `Enter` attach before you can talk to it.
-- **Background sessions live inside this process**: they stop when the TUI exits (logs survive; `/resume` or `Enter` in the view brings them back). There is no supervisor process.
+- Background sessions run inside this process with turns, tools and approvals working as usual; they stop when the TUI exits, logs survive, and `/resume` or the session screen brings them back (no supervisor process).
+- The screen lists each workspace's sessions with live state (needs input · working · completed · …) and a one-line summary from the session's own output, no extra model calls; `Enter` opens a row, `Ctrl+X` stops the focused **background** session (never the one you're attached to).
+- A background session awaiting approval shows as **needs input**; the approval panel labels which session it comes from.
 
 ## Configuration & Extensions
 
@@ -411,11 +396,7 @@ chat / tool base events ──> persisted Session log ──> TUI / Web
   back to an `@` reference when direct staging fails.
 - Exit finishes with a process exit and does not wait for the agent's async disk writes
   (persistence is covered by the persistence plugin as a backstop).
-- **Agent view background sessions live inside this process**: they all stop when the
-  TUI exits (a supervisor process and survival across restarts are out of v1 scope);
-  row summaries come from the session's own output with no extra summary-model calls;
-  worktree isolation, pinning, directory grouping, and shell background jobs are not
-  shipped yet.
+- **Background sessions live inside this process**: they stop when the TUI exits; state and summaries come from the session's own output with no extra summary-model calls; worktree isolation and shell background jobs are not shipped yet.
 - Tool-level approval is implemented: the approval service + TUI answerer (local
   approval panel) consumes the approval stream, and privilege-escalation commands pop
   an approval bar. `/permission` preset switching comes from dsh-base's
