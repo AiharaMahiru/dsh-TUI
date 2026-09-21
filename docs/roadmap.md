@@ -1,5 +1,7 @@
 # dsh-TUI Roadmap
 
+[文档索引](README.md) · [English](roadmap.en.md)
+
 > 本文档是长期方向；具体任务的实时状态应以 GitHub Roadmap tracker 为准。
 
 ## Goal

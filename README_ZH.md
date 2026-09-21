@@ -19,7 +19,7 @@
 # dsh-TUI
 
 > 面向 DeepSeek Harness 的交互式终端界面插件：像素鲸鱼顶栏、实时工作状态、流式思考展示、双击 Esc 时间回溯、上下文进度条与 TPS 仪表。
-> 零核心改动，纯插件挂载——安装即启用，卸载不留核心补丁。
+> 零核心改动，纯插件挂载。安装即启用，卸载不留核心补丁。
 
 ## 功能亮点
 
@@ -92,28 +92,28 @@ npm install -g @deepseek-ai/dsh @deepseek-harness-tui/dsh-tui
 
 # 启动（首次运行自动初始化 profile，需要 pnpm）
 dsh-tui
-# 不想按七次键盘？用短别名
+# dst 是短别名，启动同一个 TUI
 dst
 ```
 
-手动安装可用仓库根目录的 `install.sh`（或 `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`），之后 `dsh-tui` 与 `dsh --profile dsh-tui` 等价。
+手动安装：跑仓库根目录的 `install.sh`，或 `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`。之后 `dsh-tui` 与 `dsh --profile dsh-tui` 等价。
 
-> **新用户提示**：pnpm ≥11 默认拦截带安装脚本的依赖（报 `ERR_PNPM_IGNORED_BUILDS`），更新时还会忽略异平台的 `@img/sharp-*` 原生包（省约 200MB 下载）——`/update` 与 `dsh-tui update` 都会自动写好这两份配置，无需手工处理。细节见[安装与快速开始](docs/getting-started.md#pnpm-安装脚本拦截与异平台原生包)。
+> **新用户提示**：pnpm ≥11 默认拦截带安装脚本的依赖，报 `ERR_PNPM_IGNORED_BUILDS`。更新时还会忽略异平台的 `@img/sharp-*` 原生包，省约 200MB 下载。`/update` 与 `dsh-tui update` 都会自动写好这两份配置，无需手工处理。细节见[安装与快速开始](docs/getting-started.md#pnpm-安装脚本拦截与异平台原生包)。
 
-TUI 启动后会在后台检查新版本（不阻塞首帧）；有更新时输入 `/update` 一键升级、自动重启并恢复当前会话。零基础上手、profile 叠加机制、源码构建与常见问题见[安装与快速开始](docs/getting-started.md)。
+TUI 启动后会在后台检查新版本，不阻塞首帧。有更新时输入 `/update` 一键升级，自动重启并恢复当前会话。profile 叠加机制、源码构建与常见问题见[安装与快速开始](docs/getting-started.md)。
 
 ### CLI 子命令
 
 | 命令 | 作用 |
 | --- | --- |
-| `dsh-tui` / `dst` | 启动 TUI（短别名是同一个程序） |
+| `dsh-tui` / `dst` | 启动 TUI；短别名是同一个程序 |
 | `dsh-tui --resume [id]` · `dsh-tui update` · `dsh-tui doctor` | 恢复会话 · 更新 profile 并对齐启动器 · 环境体检 |
 | `dsh-tui safe` | 只读诊断、插件清单与修复指引；`safe --rescue` 创建干净的救援 profile |
-| `dsh-tui version` · `dsh-tui help` | 启动器与 profile 版本、用法——没装 dsh 时这两条也能用 |
+| `dsh-tui version` · `dsh-tui help` | 启动器与 profile 版本、用法；没装 dsh 时这两条也能用 |
 
 其余参数转发给 `dsh --profile dsh-tui`。安全模式：[安装与快速开始](docs/getting-started.md)。
 
-**VS Code**：集成终端，或 `dsh-tui-vscode` 扩展——见 [VS Code 使用指南](docs/vscode.md)。**Herdr**：在 [Herdr](https://herdr.dev) 窗格运行 `dsh-tui`，经其本地集成 API 报告 `idle` / `working` / `blocked`。
+**VS Code**：用集成终端，或用 `dsh-tui-vscode` 扩展。见 [VS Code 使用指南](docs/vscode.md)。**Herdr**：在 [Herdr](https://herdr.dev) 窗格运行 `dsh-tui`，经其本地集成 API 报告 `idle` / `working` / `blocked`。
 
 ## 快捷键与鼠标
 
@@ -129,7 +129,7 @@ TUI 启动后会在后台检查新版本（不阻塞首帧）；有更新时输�
 
 `/resume` · `/home` · `/agentview` · `/bg` · `⌸` 打开同一个会话管理界面：工作区栏、实时状态、筛选、★ 固定。另有 `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`。
 
-**后台会话**：`/bg` 或空输入按 `←`；按 `Esc` 回到它。跑在本进程内，TUI 退出即停止（日志保留）。
+**后台会话**：`/bg` 或空输入按 `←`；按 `Esc` 回到它。跑在本进程内，TUI 退出即停止，日志保留。
 
 完整命令：[交互与命令](docs/interaction.md)。
 
@@ -168,7 +168,7 @@ pnpm build
 pnpm smoke
 ```
 
-`lib/types/` 是被忽略的生成物，`pnpm build` 从干净输出目录重编译并跑构建门禁。**不支持 Git URL 安装**（源码 manifest 把 `@dsh-std/*` 保留为 workspace 依赖、`vendor/dsh-std` 是子模块，且 pnpm ≥11 默认拒绝 git 托管的 `prepare` 脚本）；请安装 registry 包：`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`。渲染、问卷或工具卡改动还需对应的回归脚本。
+`lib/types/` 是被忽略的生成物。`pnpm build` 从干净输出目录重编译，并跑构建门禁。**不支持 Git URL 安装**。源码 manifest 把 `@dsh-std/*` 保留为 workspace 依赖，`vendor/dsh-std` 是子模块，pnpm ≥11 还默认拒绝 git 托管的 `prepare` 脚本。请安装 registry 包：`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`。渲染、问卷或工具卡改动还需对应的回归脚本。
 
 ## 插件生态
 
@@ -178,24 +178,18 @@ pnpm smoke
 
 ## 文档索引
 
-| 主题 | 内容 |
-| --- | --- |
-| [安装与快速开始](docs/getting-started.md) | 前置条件、安装、启动、安全模式、profile 生命周期、源码开发 |
-| [配置参考](docs/configuration.md) | Cordis 覆盖、配置字段、Agent preset、MCP、环境变量 |
-| [主题系统](docs/themes.md) | 内置主题、自动检测、静态 JSON 与 npm 插件主题、校验规则 |
-| [交互与命令](docs/interaction.md) | 快捷键、鼠标、问卷、slash command 与会话工作流 |
-| [架构与限制](docs/architecture.md) | 运行链路、渲染与持久化设计、安全边界、已知限制 |
-| [社区管理框架](docs/community-management.md) | 社区入口、角色、提案流程、roadmap 规则与维护节奏 |
-| [项目路线图](docs/roadmap.md) | 公开目标、阶段、任务状态、退出条件与 Future Work |
-| [VS Code 使用指南](docs/vscode.md) | 在 VS Code 集成终端运行 dsh-tui；companion 扩展 `dsh-tui-vscode` 提供多会话、会话历史与指定会话恢复（已上架 Marketplace） |
-| [贡献与开发约定](docs/contributing.md) | 贡献流程、仓库地图、构建产物、验证矩阵与修改规则 |
-| [插件准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) | 接口与兼容性协定 / 插件准入规范 / 插件接缝 / 契约 / 验证清单（已并入 dsh-ecosystem-spec） |
+- **上手** — [安装与快速开始](docs/getting-started.md) · [VS Code](docs/vscode.md)
+- **使用** — [交互与命令](docs/interaction.md) · [使用说明](docs/user-guide.md) · [主题系统](docs/themes.md)
+- **配置** — [配置参考](docs/configuration.md)
+- **实现** — [架构与限制](docs/architecture.md) · [会话挂载运行时](docs/session-mount-runtime.md)
+- **插件** — [准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) · [插件速览](docs/plugins.md)
+- **参与** — [贡献与开发约定](docs/contributing.md) · [路线图](docs/roadmap.md) · [社区管理框架](docs/community-management.md)
 
-完整的中英文索引见 [`docs/README.md`](docs/README.md)。
+中英对照全量索引：[docs/README.md](docs/README.md)。
 
 ## 社区
 
-- **生态组织**：[dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) —— 社区插件、模板与收录列表的家。欢迎来发插件、提创意、互相取暖 🐋
+- **生态组织**：[dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) 是社区插件、模板与收录列表的家。欢迎来发插件、提创意、互相取暖 🐋
 - **社区交流群**：使用问题、插件创意、功能许愿，都欢迎进来聊。
 - **行为准则**：参与前请读一遍[贡献者行为准则](CODE_OF_CONDUCT.md)。
 
@@ -215,7 +209,7 @@ pnpm smoke
 
 ## 致谢
 
-- 像素鲸鱼娘的 22 帧手绘原图（Excel 逐格绘制）与闲置动画行为（摆鱼鳍、拍尾巴、入睡冒 Z、点击冒爱心）移植自 **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**（DeepSeek Harness Web 端鲸鱼宠物插件，作者 [@lhh010](https://github.com/lhh010)，BSD-3-Clause），感谢作者与灵感 🐋💜
+- 像素鲸鱼娘的 22 帧手绘原图与闲置动画，移植自 **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**。原图在 Excel 里逐格绘制。闲置动画有摆鱼鳍、拍尾巴、入睡冒 Z、点击冒爱心。dsh-ui-whale 是 DeepSeek Harness Web 端鲸鱼宠物插件，作者 [@lhh010](https://github.com/lhh010)，BSD-3-Clause。感谢作者与灵感 🐋💜
 
 ## 友情链接
 

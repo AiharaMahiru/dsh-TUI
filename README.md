@@ -17,11 +17,10 @@
 
 # dsh-TUI
 
-> An interactive terminal UI plugin for DeepSeek Harness: pixel-whale header,
-> live work status, streaming thinking display, double-Esc time rewind, a
-> context progress bar, and a TPS gauge.
-> Zero core changes, pure plugin mounting — install to enable; uninstall
-> leaves no core patches.
+> An interactive terminal UI plugin for DeepSeek Harness. It ships a
+> pixel-whale header, live work status, streaming thinking, double-Esc time
+> rewind, a context progress bar, and a TPS gauge. It mounts as a pure plugin,
+> with no core changes. Install to enable; uninstall leaves no patches behind.
 
 ## Highlights
 
@@ -103,36 +102,36 @@ dsh-tui
 dst
 ```
 
-Manual alternative: `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`
-(the repository's `sh install.sh` wraps this step and checks the required
-commands); afterwards `dsh-tui` and `dsh --profile dsh-tui` are equivalent.
+Manual alternative: `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`.
+The repo's `sh install.sh` runs that step and checks the required commands.
+Afterwards `dsh-tui` and `dsh --profile dsh-tui` are equivalent.
 
 > **New-user note**: pnpm ≥11 blocks dependencies with install scripts by
-> default (`ERR_PNPM_IGNORED_BUILDS`), and updates skip foreign-platform
-> `@img/sharp-*` native packages (saving about 200MB of downloads) —
-> `/update` and `dsh-tui update` write both configurations automatically, no
-> manual step needed. Details:
+> default and reports `ERR_PNPM_IGNORED_BUILDS`. Updates skip foreign-platform
+> `@img/sharp-*` native packages, saving about 200MB of downloads. `/update`
+> and `dsh-tui update` write both settings automatically. No manual step
+> needed. Details:
 > [Getting started](docs/getting-started.en.md#pnpm-install-script-blocks-and-foreign-platform-natives).
 
-The TUI checks for newer versions in the background after startup (never
-blocking the first frame); type `/update` for a one-shot upgrade that
-restarts automatically and resumes the current session. See
+After startup the TUI checks for newer versions in the background. It never
+blocks the first frame. Type `/update` for a one-shot upgrade. It restarts
+automatically and resumes the current session. See
 [Getting started](docs/getting-started.en.md) for the profile lifecycle,
-source builds, and troubleshooting — including migration from the former
+source builds, and troubleshooting, including migration from the former
 `dsh-cc-tui` package.
 
 ### CLI
 
 | Command | Purpose |
 | --- | --- |
-| `dsh-tui` / `dst` | Start the TUI (the short alias runs the same program) |
+| `dsh-tui` / `dst` | Start the TUI; `dst` is a short alias for the same program |
 | `dsh-tui --resume [id]` · `dsh-tui update` · `dsh-tui doctor` | Resume a session · update the profile and align the launcher · pre-flight environment checks |
 | `dsh-tui safe` | Read-only diagnostics, plugin inventory and repair guidance; `safe --rescue` builds a clean rescue profile |
-| `dsh-tui version` · `dsh-tui help` | Launcher/profile versions and usage — both work even without a `dsh` install |
+| `dsh-tui version` · `dsh-tui help` | Launcher and profile versions and usage; both work even without a `dsh` install |
 
 Other arguments go to `dsh --profile dsh-tui`. Safe mode: [Getting started](docs/getting-started.en.md).
 
-**VS Code**: integrated terminal, or the `dsh-tui-vscode` extension — [VS Code guide](docs/vscode.en.md). **Herdr**: run `dsh-tui` in a [Herdr](https://herdr.dev) pane; `idle` / `working` / `blocked` are reported through its local integration API.
+**VS Code**: use the integrated terminal or the `dsh-tui-vscode` extension. See [VS Code guide](docs/vscode.en.md). **Herdr**: run `dsh-tui` in a [Herdr](https://herdr.dev) pane; `idle` / `working` / `blocked` are reported through its local integration API.
 
 ## Keybindings & Mouse
 
@@ -148,7 +147,7 @@ Full reference: [Interaction and commands](docs/interaction.en.md).
 
 `/resume` · `/home` · `/agentview` · `/bg` · `⌸` open the same session manager: workspace rail, live state, filter, ★ pins. Also `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`.
 
-**Background sessions**: `/bg` or `←` on an empty prompt; `Esc` returns. They run in this process and stop when the TUI exits (logs survive).
+**Background sessions**: `/bg` or `←` on an empty prompt; `Esc` returns. They run in this process and stop when the TUI exits. Logs survive.
 
 Full commands: [Interaction and commands](docs/interaction.en.md).
 
@@ -163,7 +162,7 @@ dsh profile → dsh-base → dsh-TUI Cordis patch → agent preset + DSH service
   → session/event → Channel projection → React components → Ink/Yoga renderer → terminal
 ```
 
-The TUI owns interaction and presentation; the session log is the source of truth, and DSH services own models, tools and persistence. Long sessions render in O(visible window).
+The TUI handles interaction and presentation. The session log is the source of truth. DSH services own models, tools, and persistence. Long sessions render in O(visible window).
 
 Runtime path, module boundaries, performance notes and persistence locations: [Architecture and limitations](docs/architecture.en.md).
 
@@ -188,11 +187,12 @@ pnpm smoke
 ```
 
 `lib/types/` is ignored generated output. `pnpm build` recompiles it from a
-clean output directory and runs the build gates. **Git URL installs are not supported** (the source manifest keeps
-`@dsh-std/*` as workspace deps, `vendor/dsh-std` is a submodule, and pnpm ≥11 refuses
-git-hosted `prepare` scripts by default); install the registry package:
-`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`. Rendering, questionnaire, or tool-card
-changes also require the relevant regression scripts.
+clean output directory and runs the build gates. **Git URL installs are not
+supported.** The source manifest keeps `@dsh-std/*` as workspace deps and
+`vendor/dsh-std` as a submodule. pnpm ≥11 also refuses git-hosted `prepare`
+scripts by default. Install the registry package instead:
+`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`. Rendering,
+questionnaire, or tool-card changes also need the matching regression scripts.
 
 ## Plugin Ecosystem
 
@@ -202,25 +202,19 @@ Seam grading and API notes: [Plugin development](docs/plugins.en.md). The organi
 
 ## Documentation
 
-| Topic | Contents |
-| --- | --- |
-| [Getting started](docs/getting-started.en.md) | Prerequisites, installation, startup, safe mode, profile lifecycle, source development |
-| [Configuration](docs/configuration.en.md) | Cordis overrides, fields, agent presets, MCP, environment variables |
-| [Themes](docs/themes.en.md) | Built-in themes, background detection, static JSON and npm plugin themes, validation |
-| [Interaction and commands](docs/interaction.en.md) | Keyboard, mouse, questionnaires, slash commands, session workflows |
-| [Architecture and limitations](docs/architecture.en.md) | Runtime path, rendering, persistence, security boundary, known limitations |
-| [Community Management](docs/community-management.en.md) | Community entry points, roles, proposal flow, roadmap rules, and maintenance cadence |
-| [Project Roadmap](docs/roadmap.en.md) | Public goals, phases, task status, exit criteria, and Future Work |
-| [VS Code guide](docs/vscode.en.md) | Running dsh-tui in the VS Code integrated terminal; the `dsh-tui-vscode` companion extension offers multiple sessions, session history, and specific-session resume (on the Marketplace) |
-| [Contributing](docs/contributing.en.md) | Contribution workflow, repository map, build artifacts, verification matrix, change rules |
-| [Plugin admission & development](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) | Interface & compatibility agreement / plugin admission spec / seams / contracts / verification checklist (merged into dsh-ecosystem-spec) |
+- **Start** — [Getting started](docs/getting-started.en.md) · [VS Code](docs/vscode.en.md)
+- **Use** — [Keys and commands](docs/interaction.en.md) · [User guide (中文)](docs/user-guide.md) · [Themes](docs/themes.en.md)
+- **Configure** — [Configuration](docs/configuration.en.md)
+- **Internals** — [Architecture and limitations](docs/architecture.en.md) · [Session mounting](docs/session-mount-runtime.en.md)
+- **Plugins** — [Admission and development](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) · [Seams](docs/plugins.en.md)
+- **Contribute** — [Contributing](docs/contributing.en.md) · [Roadmap](docs/roadmap.en.md) · [Community](docs/community-management.en.md)
 
-The complete bilingual index is [`docs/README.md`](docs/README.md).
+Everything, bilingual: [docs/README.md](docs/README.md).
 
 ## Community
 
-- **Ecosystem organization**: [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) —
-  the home of community plugins, templates, and the curated list. Come ship a
+- **Ecosystem organization**: [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem)
+  hosts community plugins, templates, and the curated list. Come ship a
   plugin, pitch an idea, or just hang out 🐋
 - **Chat groups** (Chinese-language): usage questions, plugin ideas, and
   feature wishes are all welcome.
@@ -245,11 +239,12 @@ Details: [Permissions and security boundary](docs/architecture.en.md#permissions
 
 ## Acknowledgments
 
-- The pixel whale's 22 hand-drawn frames (drawn cell by cell in Excel) and
-  its idle behaviors (fin flutters, tail thumps, sleep Z's, click hearts)
-  are ported from **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**
-  (the DeepSeek Harness web whale-pet plugin, by [@lhh010](https://github.com/lhh010),
-  BSD-3-Clause) — thank you for the art and the inspiration 🐋💜
+- The pixel whale's 22 hand-drawn frames and its idle behaviors are ported
+  from **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**. The frames
+  were drawn cell by cell in Excel. The idle behaviors are fin flutters, tail
+  thumps, sleep Z's, and click hearts. dsh-ui-whale is the DeepSeek Harness
+  web whale-pet plugin by [@lhh010](https://github.com/lhh010), BSD-3-Clause.
+  Thank you for the art and the inspiration 🐋💜
 
 ## Friends' Links
 

@@ -1,5 +1,7 @@
 # Session Mount Runtime
 
+[Documentation index](README.md) · [简体中文](session-mount-runtime.md)
+
 > This document is the runtime contract for **issue #879, "Refactor: standardise
 > terminal-process mounting"**. It describes not how one screen behaves but the
 > single set of rules governing the relationship between **sessions** and

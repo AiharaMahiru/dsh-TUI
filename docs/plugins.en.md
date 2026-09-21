@@ -1,5 +1,7 @@
 # Plugin Development Guide (merged into spec)
 
+[Documentation index](README.md) · [简体中文](plugins.md)
+
 > This document has been merged with the ecosystem admission specification:
 > [Plugin Admission and Development Guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md)
 

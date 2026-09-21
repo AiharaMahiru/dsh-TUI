@@ -1,5 +1,7 @@
 # Community Management Framework
 
+[Documentation index](README.md) · [简体中文](community-management.md)
+
 This document defines how the dsh-TUI community proposes, discusses, tracks, and delivers public work. It does not replace the [contributing guide](contributing.en.md), [Code of Conduct](../CODE_OF_CONDUCT.en.md), or the security reporting process.
 
 ## Goals

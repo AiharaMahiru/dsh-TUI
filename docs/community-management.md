@@ -1,5 +1,7 @@
 # 社区管理框架
 
+[文档索引](README.md) · [English](community-management.en.md)
+
 本文件定义 dsh-TUI 的公开社区协作方式。它负责回答“社区如何提出、讨论、跟踪和交付工作”，不替代 [贡献指南](contributing.md)、[行为准则](../CODE_OF_CONDUCT.md) 或安全报告流程。
 
 ## 目标

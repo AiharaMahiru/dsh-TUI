@@ -1,5 +1,7 @@
 # 会话挂载运行时规范（Session Mount Runtime）
 
+[文档索引](README.md) · [English](session-mount-runtime.en.md)
+
 > 本文是 **issue #879「Refactor：规范终端进程挂载」** 的运行时契约。
 > 它描述的不是某个界面的做法，而是**整个 TUI 里"会话"与"进程"关系的唯一一套规则**。
 > 界面实现见 `src/screens/SessionSupervisor.tsx`，占用协议见 `src/sessionMounts.ts`。
