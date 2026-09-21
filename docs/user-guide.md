@@ -31,6 +31,7 @@ dsh-tui
 ```
 
 - `dsh-tui --resume`：恢复上次会话；Windows 可用仓库里的 `dsh-tui.cmd`（等价）。
+- `dsh-tui safe`：安全模式——只读查看环境、列出 profile 插件并给出修复建议，还能创建干净的救援 profile（见 §5.5）。
 - `dsh --profile dsh-tui`：与 `dsh-tui` 等价的手工启动方式（`/update` 仅此方式可用）。
 - 运行模型需要 `DEEPSEEK_API_KEY`；环境自检用 `/doctor`。
 - 已验证的 dsh 引擎版本：`0.1.5-rc.1`，以及 `0.1.5-alpha.2`、`0.1.5-alpha.1`、`0.1.3-alpha.2`、
@@ -47,7 +48,9 @@ dsh-tui
    （更新/更旧/混装/异常四形态），附对齐命令（`npm i -g @deepseek-ai/dsh@<版本>`）。
 2. **底部状态栏**：工作状态行、上下文进度条、TPS 仪表与各类实时指标（见
    [5. 界面与状态栏](#5-界面与状态栏)）。
-3. 输入 `/` 看命令菜单，按 `?` 看快捷键帮助。
+3. **启动提示行**：Logo 下方固定一行 `提示：<随机小技巧> · /tips 更多技巧`，每次启动随机换一条；`/tips` 打开完整技巧面板（快捷键 / 命令 / 工作流 / 界面与个性化 / 避坑五组，`↑/↓` 滚动、`Esc` 关闭）。
+4. **第一次普通启动**（没带 `--resume`、没指定工作区、也没带首条提示词）落在**会话管理界面**让你先挑工作区；离开后 `~/.dsh-tui/home.json` 记下"已看过"，以后启动直接进对话（界面随时可用 `/resume`、`/home`、`/agentview`、`/bg` 或输入框行首 `⌸` 打开）。
+5. 输入 `/` 看命令菜单，按 `?` 看快捷键帮助。
 
 ### 1.3 核心心智模型
 
@@ -109,17 +112,19 @@ dsh-tui
 | `↑` / `↓` | 多行时行间移动；单行时浏览输入历史（50 条） |
 | `Ctrl+V`（⌘V）/ `Alt+V` | 粘贴：文本 / 文件路径（图片自动 `@` 引用）/ 剪贴板位图（`[Image #N]` 附件）；终端拦截 `Ctrl+V` 时用 `Alt+V` |
 | `Ctrl+G` | 用 `$VISUAL`/`$EDITOR` 外部编辑器编辑输入（`:cq` 保留原稿；未设置变量时提示配置） |
+| `Ctrl+Shift+E`（⌘⇧E） | 展开**全屏草稿编辑器**（也可点输入行尾 `⛶`）：带行号、高亮当前行，`Enter` 换行、`Ctrl+Enter` 发送、`Esc` 收起（草稿还在），滚轮、点击、拖选跟输入框一致；`/settings → 全屏草稿编辑` 可关 |
+| 超长草稿自动折叠 | 粘贴 **≥6 行或 ≥600 字**的块会折成 `▸ N 行・M 字` 小条（悬停看全文）：点小条、或展开后首行的 `▾`，来回切换折叠；`Esc` 或敲任意键先展开。折叠只管显示——`Enter` 提交的始终是全文 |
 | `/vim` | **vim 编辑模式开关**（会话级、不持久化）：开启后输入框显示 `INSERT` 徽标，`Esc` 切 `NORMAL`，`i/I/a/A/o/O` 回 INSERT。NORMAL 下：`h/l` 左右、`j/k` 上下行、`0/^/$` 行首/首个非空/行尾、`w/b` 词间移动、`x/X` 删字符、`d` 待第二键（`dd` 删整行含换行 / `d$` 删至行尾 / `d0`、`d^` 删至行首 / `dw` 删至词尾）、`u` 撤销、`/` 打开命令菜单、`?` 空输入开帮助、`Enter` 发送照常；未识别键忽略（不插入）。normal 下 `Esc` 无操作，清空用 `Ctrl+C` 或 `dd` |
 | 打字 | **有选区时替换整个选区**（标准编辑器语义），光标落在插入文本之后 |
 | 右键 / `Ctrl+Shift+V` | 终端原生粘贴（含换行原样插入） |
-| `Esc`（输入框） | 层级：关帮助 → 关命令菜单 → 关文件菜单（仅当前 `@` token）→ **有选区仅清选区（文本不动）** → 中断重投 → 有输入清空 → 双击=时间回溯 |
+| `Esc`（输入框） | 一层层关：帮助 → **图片预览** → 命令菜单 → 文件菜单（只关当前 `@` token）→ **有选区就先清选区（文字不动）** → 中断重投 → 有输入清空 → 双击=时间回溯 |
 | 双击 `Esc`（空输入） | **时间回溯 rewind**（3s 窗口内按两次） |
 
 ### 2.5 导航 / 模式
 
 | 键 | 功能 |
 |---|---|
-| `Shift+Tab` | 循环会话模式（默认 → plan 计划 → full 完全访问） |
+| `Shift+Tab` | 循环会话模式（默认 → plan 计划 → full 完全访问）；挂载了第三方权限预设时，它们按 registry 顺序排在循环末尾 |
 | `Shift+↑` | 消息选择模式（`↑/↓` 移动，`Enter` 展开单条，`Esc` 退出） |
 | `Ctrl+T`（⌘T） | 打开轨迹场景（同 `/trace`） |
 
@@ -145,21 +150,35 @@ dsh-tui
 ### 2.7 各场景键位
 
 **问卷（模型 ask_user_question）**
-`↑/↓` 选择 · `Space` 多选勾选 · `Tab` 切自定义回答 · `Enter` 提交 · 第 2 题起 `Esc` 返回上一题 · 第 1 题 `Esc` 或任意题 `Ctrl+C` 取消整批提问
+`↑/↓` 选择 · `Space` 多选 · `Tab` 切自定义回答 · `Ctrl+V` 粘贴 · `Enter` 提交 · `Ctrl+K` 或点标题行折叠 · 第 2 题起 `Esc` 返回上一题 · 第 1 题 `Esc` 或任意题 `Ctrl+C` 取消整批
 
 **计划评审（plan review）**
-`↑/↓` 移动 · `1`/`2` 数字快选（反馈为空时）· 打字=反馈 · `Enter` 提交 · `Esc` 打断评审
-（批准行带反馈会报错——批准必须无反馈）
+`↑/↓` 移动 · `1`/`2` 数字快选（反馈为空时）· 打字=反馈 · `Ctrl+V` 粘贴反馈 · `Enter` 提交 · `Esc` 打断评审（批准带反馈会报错，批准必须无反馈）
 
 **工具审批（approval）**
 `↑/↓` 移动 · `1` 允许（仅本次）/ `2` 拒绝 · `Enter` 提交 · `Esc`/`Ctrl+C` 拒绝
 
-**/resume 工作目录 / 会话浏览器**
-顶部始终显示当前工作目录；`←` 或点击目录行进入目录选择，`↑/↓` 选择、`Enter/→` 查看该目录会话；≥120 列时目录栏常驻。
-会话层：打字=实时搜索 · `↑/↓` 与 `PgUp/PgDn` 移动 · `Enter` 恢复 · `Tab` 预览开关 · `⌘A` 当前/全部目录快切 ·
-`Ctrl+B` 本分支 · `Ctrl+S` 折叠子 agent 运行 · `Ctrl+P` 固定/取消固定（也可点击 ★/☆）· `Ctrl+R` 重命名 · `Ctrl+D` 删除 · `Ctrl+X` 清空壳；
-**右键点击会话行弹出操作菜单**（打开 / 固定或取消固定 / 重命名 / 删除，`↑/↓` 选择 · `Enter` 执行 · `Esc` 或点击别处关闭）；固定项持久化到 `~/.dsh-tui/session-pins.json`，展开的子 agent 运行也可独立置顶；
-`Esc` 依次清空搜索、关闭预览、退出，目录层 `Esc` 返回会话层
+**会话管理界面**（`/resume`、`/home`、`/agentview`、`/bg`、输入框行首 `⌸`，同一个界面）
+左栏工作区、右栏当前工作区的会话（≥84 列两栏并排，更窄收起工作区栏只留会话栏）。
+`←/→` 换栏（屏上只有一个 `❯`）· `↑/↓`/`PgUp`/`PgDn` 移动 · **直接打字 = 实时筛选**当前工作区会话（按标题 / 目录 / 分支 / 模型）·
+`Enter` 进入光标行（第 0 行 = 在该工作区新建会话），在工作区栏则打开操作菜单 ·
+`Ctrl+Enter`/`Ctrl+N` 在光标所在工作区新建会话 · `Ctrl+X` 停止**后台**会话（当前会话停不了）· `Ctrl+L` 重读列表 ·
+`Shift+Tab` 从工作区栏打开操作菜单 · 点击会话行 = 进入，点行内 `★`/`☆` 只切固定（不进会话）· 右键工作区行弹出操作菜单 ·
+`Esc` 依次：关提示 → 清空筛选 → 离开。
+输入框空着按 `←`（或 `/bg`）= 转后台并打开本界面，会话继续跑；再按一次 `Esc` 回到刚转后台的会话。
+切换会话只是**停放**——正在跑的回合继续跑，切回来照旧；被**别的** TUI 终端占用的会话整行标红、行尾写 `占用 pid <pid>` 且点不动，对方退出后自动恢复可进。
+固定项存到 `~/.dsh-tui/session-pins.json`；工作区菜单四项：编辑 / 在此新建 / 重命名 / 从列表移除（**只删登记**，目录与会话日志都保留）。
+目录没登记过的会话归到「未登记的工作区」分组，照常进入（该分组只在本界面内存活，不写回登记）。
+
+**大图预览**（点输入框里的 `[Image #N]` 或转录里的缩略图打开）
+`←/→` 上一张 / 下一张（首尾不循环，底部也有 `‹`/`›`）· 缩放走**底部按钮**：`适应` 回整图、`100%` 按终端实际像素、`200%`/`400%`/`800%` 逐级放大（打开时只认 `←/→` 和关闭键）·
+拖动图片、滚轮或方向按钮平移 · `Esc`/`Ctrl+C`/`Enter` 或点卡片外关闭 · 底部「打开原图」用系统看图程序打开原始附件。
+
+**IDE 选区**（VS Code companion 扩展 `dsh-tui-vscode`，需扩展 ≥ 0.7.0、选区协议 v2）
+编辑器选中代码 → 输入框下方**实时**出现 `⧉ N lines selected` 徽标（清空选区即消失）；提交时选中行**自动附上**进上下文，
+转录里用户消息上方出现「⧉ Selected N lines from <相对路径>」指示行（resume 后仍能重建）。附加的是编辑器里那份文本
+（没保存的改动也带上），超大选区按 @-引用同款上限截断并标记；没装 / 没连 IDE 时自动跳过、其余功能不受影响
+（详见 [vscode.md](vscode.md)）。
 
 **历史搜索（Ctrl+R）**
 `↑/↓` 选择 · 重复 `Ctrl+R` 或 `↓` 下一项 · `Enter` 回填 · `Esc`/`Ctrl+C`/`Ctrl+D` 取消
@@ -171,7 +190,7 @@ dsh-tui
 `q`/`Esc` 退出（Esc 三层：收详情→清查询→关闭）
 
 **/settings 设置面板**
-`↑/↓` 移动 · `Enter` 展开/切换/编辑 · 改动自动保存，`Esc` 直接退出
+`↑/↓` 移动 · `Enter` 展开/切换/编辑 · `←/→` 在**有选项的字段**上循环切换（布尔项仍只认 `Enter`）· 改动自动保存，`Esc` 退出
 
 **/btw 侧问面板**
 `↑/↓` 滚动 · `Space`/`Enter`/`Esc` 关闭 · `c` 复制答案 · 等待中 `Esc` 取消
@@ -207,7 +226,13 @@ dsh-tui
 | 命令 | 参数 | 作用 |
 |---|---|---|
 | `/new` | 无 | 新开会话（无二次确认；旧会话可 `/resume` 恢复） |
-| `/resume` | 无 | 打开会话浏览器（搜索、预览、跨项目、折叠子 agent 运行、固定常用会话） |
+| `/resume` | 无 | 打开**会话管理界面**（工作区栏 + 会话栏、实时筛选、固定常用、跨工作区）：切换会话只是**停放**，正在跑的回合不中断 |
+| `/home` | 无 | 同一个会话管理界面（工作区视角：管理登记过的工作区及其会话） |
+| `/agentview` | 无 | 同一个会话管理界面（看本终端里托管的所有会话及其实时状态） |
+| `/bg` | 无 | 把当前会话转到后台并打开同一个界面（别名 `/background`） |
+| `/tree` | 无 | 会话分叉树：悬停预览、点击回退 / 分叉 / 切换分支 |
+| `/fork` | 无 | 把当前会话复制成可恢复的副本（原会话不受影响） |
+| `/restart` | 无 | 重启进程并恢复本会话（回合运行中会被拒绝，先 `Ctrl+C`） |
 | `/rename` | `<新名称>` | 重命名当前会话（无参时显示当前标题与用法） |
 | `/recap` | 无 | 最近活动摘要（一行）+ 建议标题；面板内 `a` 键或点击一键应用标题。设置 `dsh-tui.recapOnOpen`（默认开）开启时，打开/恢复会话自动在底部显示一条分隔线 + `回顾：` 摘要行，悬停可查看操作、点击展开，发送新消息后自动消失 |
 | `/workspace` | `resume` / `rename <名称>` / `open <路径或URI>` | 管理工作区；`open` 支持绝对路径、file URI、插件 scheme |
@@ -231,7 +256,7 @@ dsh-tui
 | `/doctor` | 无 | 环境自检 |
 | `/init` | 无 | 在工作目录创建 `AGENTS.md`（created / exists / failed 三态提示） |
 | `/agents` | 无 | 本会话子代理列表 |
-| `/jobs` | 无 | 本会话后台任务面板（`run_in_background` 启动的命令）：状态/运行时长/退出码实时跟踪，`↑/↓` 选择、`k` 停止选中任务；转录流内嵌任务卡（有输出时显示最多三行瀑布、无输出时仅头行，点击进面板），状态栏有运行数角标，任务落定弹 toast。输出来自 agent `job_output` 读取的镜像，非实时 tail |
+| `/jobs` | 无 | 本会话后台任务面板（`run_in_background` 启动的命令）：状态/运行时长/退出码实时跟踪，`↑/↓` 选择、`k` 停止选中任务；面板打开时 `Esc` **只关面板**，不会打断正在跑的回合（想中断回合要先关面板再按 `Ctrl+C`）；转录流里内嵌任务卡（有输出显示最多三行瀑布、没输出只留头行，点击进面板），状态栏有运行数角标，任务落定弹 toast。输出来自 agent `job_output` 读取的镜像，不是实时 tail |
 | `/settings` | 无 | 打开插件设置编辑器（命名空间读取/编辑） |
 | `/help` | 无 | 快捷键 + 命令帮助菜单（`?` 入口） |
 
@@ -298,12 +323,12 @@ dsh-TUI 不预装通用技能。`/skills` 浏览 DSH 从当前 profile、用户�
 | 操作 | 命令/键 | 要点 |
 |---|---|---|
 | 新建 | `/new` | 无二次确认——旧会话已持久化，随时可 `/resume` 找回；顺带清空 resume 标记 |
-| 恢复 | `/resume` | 全屏工作目录 / 会话浏览器：顶部目录范围可点击，`←` 进入目录选择、`Enter/→` 查看；宽屏目录栏常驻；打字搜索当前层，`Enter` 恢复、`Tab` 预览、`⌘A` 当前/全部目录快切、`Ctrl+B` 本分支、`Ctrl+S` 子 agent、`Ctrl+R` 重命名、`Ctrl+P` 固定/取消固定、`Ctrl+D` 删除、`Ctrl+X` 清理空壳；右键会话行弹出打开/固定/重命名/删除菜单。固定会话组成「已固定」分组置顶显示（组内按最近活动排序），行内 ★/☆ 或 `Ctrl+P` 切换，持久化到 `~/.dsh-tui/session-pins.json`；删除会话自动清 pin，已不存在会话的 pin 记录惰性忽略。长前置上下文的旧会话会渐进恢复真实标题，不再固定显示目录名 |
-| 重命名 | `/rename <标题>` | 立即改名并持久化（写入 session/title 事件，浏览器可读回） |
+| 恢复 | `/resume`（同 `/home` `/agentview` `/bg` 与输入框行首 `⌸`） | 三合一**会话管理界面**：左工作区栏 + 右会话栏，`←/→` 切栏、打字实时筛选、`Enter` 进入、`Ctrl+N` 新建、`Ctrl+X` 停止后台会话、行内 ★/☆ 固定（`~/.dsh-tui/session-pins.json`）。切换会话只是**停放**——把会话放一边，回合继续跑、切回来照旧；被其他 TUI 终端占用的会话标红并写明 pid，进不去（详见 §2.7）。列表只把"完整读取且确认没有用户消息"的日志算空会话，仅发图片 / 读取不完整 / 解析失败的会话不会被误判 |
+| 重命名 | `/rename <标题>` | 立即改名并持久化（写入 session/title 事件，会话管理界面里能读回） |
 | 压缩 | `/compact` | 手动触发 DSH compaction；**回合运行中拒绝**；minimal preset 下不可用；压缩点以 Divider 摘要行呈现。压缩进行中切换会话（`/model`、`/resume`、`/rewind`、`/fork`、`/new`）会**先取消压缩再快照**——后台不再有静默提交的压缩；摘要默认用当前路由模型（换模型后即用新模型压缩）。"压缩已生效但落盘失败"会明确提示，不再误报为压缩失败 |
 | 导出 | `/export` | 从完整 session log 导出 Markdown（含 thinking 与工具调用分节），文件 `dsh-tui-export-<时间戳>.md` 落在当前会话 cwd |
 | 清屏 | `/clear` | 只清视图，不动会话日志 |
-| 删除 | `/resume` 里 `Ctrl+D` | 删除日志目录与 MRU 条目（有确认） |
+| 停止 | 会话管理界面 `Ctrl+X` | 停止光标所在的**后台**会话；当前终端正在用的会话停不了（想退出整个 TUI 用 `/exit` 或双击 `Ctrl+C`） |
 | 退出 | `/exit`（或 `/quit` `/q`） | 空闲 `Ctrl+C` 双击或 `Ctrl+D` 双击也可退出；工作中中断迟迟不收敛时再按 `Ctrl+C`/`Ctrl+D` 强制退出 |
 
 命令行恢复：`dsh-tui --resume`（最近会话）/ `dsh-tui --resume <id>`（指定会话）；`-c` / `--continue` 等价。
@@ -355,17 +380,24 @@ dsh-TUI 不预装通用技能。`/skills` 浏览 DSH 从当前 profile、用户�
 - `/preset`：`standard`（默认全功能）/ `ptc`（PTC）/ `minimal`（仅 bash+编辑器，无 compaction）/ `cordis`（创造模式）/ `liangshen`（梁神模式：首轮最小双工具，首次工具调用后开放全目录）。0.1.2 名册会把旧版 `code` 作为 `ptc` 的兼容别名；旧 0.1.1 名册仍使用 `code` 真名。
   **已产生对话的会话不可切换**（blank-only：选择只保存为下次 `/new` 的默认）。
 - 会话模式 `Shift+Tab` 循环三档：default（workspace-write + 审批）→ plan（read-only）→ full（danger-full-access）。
+  挂载的第三方权限预设按 registry 顺序**排在循环末尾**；`custom`/`status`、与内置档重复的 identity、不安全 token 不加入。
+  **批准计划或 `/plan off` 之后回到进计划模式之前的沙箱与审批策略**；自己用 `Shift+Tab` 切走的则保留所选模式。
+  恢复历史会话按事件历史还原进入前的权限；历史不足以确定时保持不变，不因"匹配不上配置"悄悄降级成 full access。
 
 ### 4.7 问卷与审批
 
 **问卷（模型 ask_user_question）**：面板独占键盘；`↑/↓` 选选项、`Space` 多选、
-`Enter` 提交。**最后一行是自由输入行**——在选项行直接打字 = 附加该选项标签 + 自定义文本一起提交；
-`Tab` 直达输入行。第 2 题起按 `Esc` 返回上一题并保留草稿；第 1 题按 `Esc`，或任意题按 `Ctrl+C`，取消整批提问（模型收到 ASK_CANCELLED）。面板可 `Ctrl+K` 折叠/展开；挂起时 `Esc`/`Ctrl+C` 先展开，不直接取消。
-计划评审卡片：`1`/`2` 数字快选；**批准必须无反馈文本**（带反馈视为"继续规划"）。
+`Enter` 提交，`Ctrl+V` 把剪贴板文本粘进自定义回答（剪贴板是图片/文件或超长时明确提示）。
+**最后一行是自由输入行**——在选项行直接打字 = 附加该选项标签 + 自定义文本一起提交；`Tab` 直达输入行。
+第 2 题起按 `Esc` 返回上一题并保留草稿；第 1 题 `Esc`，或任意题 `Ctrl+C`，取消整批（模型收到 ASK_CANCELLED）。
+面板 `Ctrl+K` 折叠/展开，**点标题行**同样折叠；挂起时 `Esc`/`Ctrl+C` 先展开，不直接取消。
+计划评审卡片：`1`/`2` 数字快选、反馈文本支持 `Ctrl+V` 粘贴；**批准必须无反馈文本**（带反馈视为"继续规划"）。
+插件弹窗（托管对话框）里的输入同样支持 `Ctrl+V` 粘贴。
 
 **工具审批**：命令申请权限提升时弹出审批条（工具名 + 完整命令 + 原因）。
 `↑/↓` 选择 · `1` 允许（仅本次）/ `2` 拒绝 · `Enter` 提交 · `Esc`/`Ctrl+C` 拒绝。
 审批与问卷同时挂起时**审批优先**；协议只有"允许一次/拒绝"，无"总是允许"。
+后台会话发起的审批多一行标注 **`来自后台会话 <会话 id 前 8 位>`**，标明批的是哪个会话的请求。
 
 ### 4.8 技能 / 注册表 / Goals-Todos
 
@@ -454,10 +486,14 @@ dsh-tui 自身区块写入 settings.yaml 用户层，多数设置实时生效；
 | whaleIdle | 鲸鱼娘欢迎期闲置动画（默认开）：定格后摆鱼鳍/拍尾巴/眨眼，空闲 10 秒入睡冒 Z；点击冒爱心不依赖此设置。开始第一个任务后永久定格为静态标准帧 |
 | diffLayout | Edit/Write diff 布局：auto（≥110 列双栏）/ split / unified |
 | thinkingFold | 思考块：preview（流式 2-3 行预览 + 落定折叠）/ full（展开到轮末） |
-| effortDefault | 默认推理强度：auto / off / low / high / max。新会话的起始档位（模型提供该档时当前会话下一请求同样生效，否则静默回落模型默认）；优先级 settings 用户层 > cordis `effort` > 上次 `/effort`（effort.json）> 模型默认 |
+| effortDefault | 默认推理强度：auto / off / low / high / max。新会话的起始档位（模型提供该档时当前会话下一请求同样生效；**模型没有这一档，自动就近降一级，并弹提示说明**；连更低档都没有才用模型默认，同样会提示——不会静默）；优先级 settings 用户层 > cordis `effort` > 上次 `/effort`（effort.json）> 模型默认 |
 | smoothStreaming | 流式平滑输出（默认开）：实时回复/展开思考/工具卡正文按 ~30fps 匀速揭示，突发送达不再跳变，一次性到达的非流式回复也平滑打出；回放/历史始终完整直出 |
 | toolBackground | 工具卡背景强调：none / subtle / strong |
 | mermaidDiagrams | Mermaid 图表（默认开）：回复中的 ```` ```mermaid ```` 代码块画成字符图，流式期间逐步成形；比终端宽或类型不支持的图保留源码并注明所需列数。立即生效 |
+| scrollGutter | 转录边栏：timeline（轮次时间线，默认）/ scrollbar（比例滚动条，**轨道可以直接拖**，按住左键拖动连续滚动；`Shift`/`Alt`/`Ctrl`+拖动仍是文字选择）/ hidden。立即生效 |
+| pageMargin | 页边距：整屏相对终端四边向里缩，预设 none / slim / normal（默认）/ roomy，或自定义 `NxM`（左右各 `N` 列、上下各 `M` 行，上限 8x4；只填 `N` 则上下保持 1 行）。立即生效 |
+| foldTerminalCommand | 折叠终端命令（默认关）：终端卡（Bash/PowerShell）多行命令折成首行 + 计数；`Ctrl+O` 或点击卡片展开 |
+| expandEditor | 全屏草稿编辑（默认开）：输入行尾 `⛶` 或快捷键（默认 `Ctrl+Shift+E`）把草稿展开成整屏编辑器——带行号、高亮当前行，`Enter` 换行、`Ctrl+Enter` 发送、`Esc` 收起（草稿还在）；关掉后这两个入口都不显示 |
 | statusBar.* | 上表全部状态栏开关（compact/model/thinking/cwd/contextUsage/cache/tokens/cost/tps/gitBranch/sessionTitle/sessionId/mode/contextBar/activity/trajectory；statusBar.sessionId 是底栏显示开关，与 cordis 的启动 sessionId 无关） |
 
 未声明 TUI 区块的命名空间以只读形式列出，需手工编辑 `~/.dsh/settings.yaml`。
@@ -469,8 +505,23 @@ provider / model / cwd / preset / workspace / sessionId / modes
 
 - 必须交互 TTY；推荐 Windows Terminal（≥110 列、等宽、TrueColor）。
 - macOS 的 ⌘ 修饰键需要扩展键盘协议（iTerm2 / kitty / WezTerm / ghostty / tmux）；Terminal.app 请用 Ctrl。
-- VS Code：可用 companion 扩展 `dsh-tui-vscode`（Marketplace 已上架，真实集成终端承载），或集成终端直接 `dsh-tui`。
+- VS Code：可用 companion 扩展 `dsh-tui-vscode`（Marketplace 已上架，跑在真实的集成终端里），或直接在集成终端里 `dsh-tui`；
+  装扩展还能拿到 **IDE 选区通道**（选中代码自动进上下文，见 §2.7，需扩展 ≥ 0.7.0）。
+- **图片**：缩略图与大图预览需要 Kitty graphics 或 Sixel（自动探测，Kitty 优先）；`DSH_TUI_IMAGE_PROTOCOL=auto|kitty|sixel|none`
+  可覆盖协议选择，`DSH_TUI_DISABLE_TERMINAL_IMAGES=1` 强制关闭预览。tmux/screen、非 TTY 输出与无障碍模式下只显示文字信息，不影响把图片发给模型。
+  终端不支持时预览卡只显示元数据（格式 / 尺寸 / 体积 / 文件名），粘贴与发送照常。
 - 环境自检：`/doctor`。
+
+### 5.5 安全模式与救援 profile（`dsh-tui safe`）
+
+dsh 意外退出时，安全模式给出**只读**的环境诊断、profile 插件清单和修复指引，帮你在"装坏了起不来"时自救。
+
+- **两个入口**：手动跑 `dsh-tui safe`；或 dsh 非零退出码退出后按屏幕提示进入（询问只在交互终端出现；脚本 / 管道等非交互环境只多打一行提示，退出码保持原样）。
+- **只读范围**：诊断 / 清单 / 指引都不改状态；两个例外是「重试正常启动」和「创建 / 复用空白救援 profile」，后者只写 `$DSH_HOME/profiles/dsh-tui-safe/`。
+- **救援 profile 先要证明干净，证不出就拒绝**：候选目录认不出、既有 profile 声明了第三方插件、home 层或 profile 层的 `cordis.patch.yml` 有条目——任一成立直接拒绝启动并打印怎么处理（默认拒绝；dsh 默认生成的「注释 + `[]`」不算条目，不影响复用）。
+- **非交互**：`dsh-tui safe --rescue` 在脚本 / 管道下跑同一套检查，只报告结论（就绪退出 0，被拒绝退出 1）。
+- **修复命令要自己执行**（安全模式只列出）：`dsh plugin --profile dsh-tui remove <第三方插件>` 逐个移除可疑插件、
+  `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<版本>` 重装对齐、`dsh-tui doctor` 环境诊断。
 
 ---
 
@@ -478,7 +529,7 @@ provider / model / cwd / preset / workspace / sessionId / modes
 
 | 项 | 命令 | 说明 |
 |---|---|---|
-| 模型 | `/model` | 选择器；**切换 = fork 会话续聊**（历史保留、仅换路由）；持久化 `~/.dsh-tui/model.json`，重启与 `/new` 沿用 |
+| 模型 | `/model` | 选择器；**切换 = fork 会话续聊**（历史保留、仅换路由）；持久化 `~/.dsh-tui/model.json`，重启与 `/new` 沿用。从没选过的话，用内置默认模型（当前为 `deepseek-flash`） |
 | 推理强度 | `/effort` | 滑杆（←/→ 实时）或 `/effort <id>`；`/effort status` 看当前；新会话默认档在 /settings → 默认推理强度 |
 | Agent 预设 | `/preset` | `standard` / `ptc`（0.1.2；旧 0.1.1 名为 `code`）/ `minimal` / `cordis` + **梁神模式 `liangshen`**；**已开始会话不可切换**（blank-only） |
 | 主题 | `/theme` | `auto`（OSC 11 跟随终端背景）/ `light` / `dark` / `dark-ansi`；`/theme <名>` 直接切；`/theme status` 看解析结果 |
@@ -493,7 +544,8 @@ provider / model / cwd / preset / workspace / sessionId / modes
 `resume.txt` / `last-used.json`（会话恢复）、`themes/<名>.json`（自定义主题）。
 
 **常用环境变量**：`DSH_TUI_LANG`、`DSH_TUI_THEME`、`DSH_TUI_PRESET`、`DSH_TUI_PERSONA`、
-`DSH_TUI_DISABLE_MOUSE`、`DSH_TUI_DISABLE_TERMINAL_IMAGES`、`DSH_TUI_RESUME_SESSION`、`DSH_TUI_WORKSPACE_TARGET`、`DSH_TUI_SESSION_ROOT`、
+`DSH_TUI_DISABLE_MOUSE`、`DSH_TUI_DISABLE_TERMINAL_IMAGES`、`DSH_TUI_IMAGE_PROTOCOL`、`DSH_TUI_ACCESSIBILITY`（无障碍模式：关动画/图形预览）、
+`DSH_TUI_RESUME_SESSION`、`DSH_TUI_WORKSPACE_TARGET`、`DSH_TUI_SESSION_ROOT`、
 `DSH_TUI_DEBUG`、`DSH_TUI_RENDER_LOG`（帧取证，可能含敏感内容）、`DEEPSEEK_API_KEY`、`DEEPSEEK_BASE_URL`、
 `VISUAL`/`EDITOR`（`Ctrl+G` 外部编辑器）、`DSH_PERMISSION_MODE`。
 
@@ -542,9 +594,10 @@ provider / model / cwd / preset / workspace / sessionId / modes
     `~/.dsh-tui/themes/<名>.json`（`{base, colors}`），选中即热切换。
 21. `/preset liangshen` 梁神模式：首轮最小工具集、首次工具调用后开放全目录（**新会话才生效**）。
 22. `/effort` 滑杆 `←/→` 实时调推理强度；`/activity frames comet` 换状态行动画
-    （帧名 30 个，`random` 随机）。
+    （可选名 35 个：34 种动画 + `random` 随机）。
 23. `/model` 切换会 fork 续聊（历史保留），持久化后重启与 `/new` 沿用——放心换模型。
-24. 会话太多？`/resume` 里 `Ctrl+P` 固定常用会话置顶、`Ctrl+S` 折叠子 agent 运行、`Ctrl+X` 清理空壳会话。
+24. 会话太多？**会话管理界面**（`/resume`、`/home`、`/agentview`、`/bg` 或输入框行首 `⌸`）里打字即筛选、行内 `★` 固定、
+    `Ctrl+X` 停止后台会话；切换会话只是**停放**，正在跑的回合不中断（详见 §2.7）。
 25. 有文本选区时滚轮是**平移选区**不是滚动列表——想滚屏先 `Esc` 取消选区。
 26. `/color` 给当前会话设强调色：无参打开调色板、`/color <名>` 直设、`/color reset` 清除；
     按会话保存，`resume` 后仍在。
@@ -568,8 +621,25 @@ provider / model / cwd / preset / workspace / sessionId / modes
     vim 模式后双击 `Esc`，或用 `/rewind`；回合运行中在 vim insert 模式按 `Esc` 也只是回
     normal，打断回合用 `Ctrl+C` / `Ctrl+Enter`。
 
+**近期新增**
+37. **换屏不丢草稿**：去 `/settings`、会话管理界面或轨迹场景转一圈再回来，草稿文字、光标位置、暂存图片，
+    还有折叠块、全屏编辑器展开态和 vim 模式都原样还在（草稿跟着**会话**走）。
+38. **IDE 选区通道**：VS Code 里选中代码，输入框下实时显示 `⧉ N lines selected` 徽标，发送时选中行自动附加进上下文
+    （转录里有指示行，resume 后仍能重建）；需要 `dsh-tui-vscode` ≥ 0.7.0，没连 IDE 时自动跳过、不影响其他功能。
+39. **粘贴大图**：超过 profile 图片限额的图先等比缩到限额内（必要时转格式、优先保留透明）再存下，
+    粘贴提示写明最终尺寸和格式；需要重编码的动图会被**明确拒绝**，而不是悄悄丢帧。
+40. **Mermaid 直接看**：回复里的 ```` ```mermaid ```` 代码块画成字符图（flowchart / sequence / state / class / ER / pie / mindmap / timeline / gitGraph），
+    流式期间逐步成形；`/settings → Mermaid 图表` 可关，立即生效。
+41. **长行不再拖慢画面**：超过 1000 字符的单行折成 `… 已折叠 N 字符（点击或 ctrl+o 展开）`；
+    终端卡多行命令可用 `/settings → 折叠终端命令` 折成首行 + 计数。
+42. **转录边栏**：`/settings → 转录边栏` 在 轮次时间线 / 滚动条 / 隐藏 间切换——滚动条模式下**轨道可以直接拖**；
+    全屏转录还支持 `PgUp`/`PgDn` 按页翻动消息列表。
+43. **草稿写长了**：`Ctrl+Shift+E` 或输入行尾 `⛶` 把草稿展开成整屏编辑器（带行号、高亮当前行，`Ctrl+Enter` 发送、`Esc` 收起且草稿还在）。
+
 ---
 
-> 本文档信息收集自代码与既有文档；深挖中发现的文档缺口（`/rewind` `/effort` `/settings`
-> `/skills` 等命令未入 README 命令表、`Ctrl+P` 未入快捷键表、状态栏 hint 硬编码英文、
-> docs/vscode.md 版本号滞后等）可作为后续文档修正的 backlog。
+> 本文档信息收集自代码与既有文档。**2026-09-21 按当前实现校正过一轮**：会话管理界面（`/resume` `/home`
+> `/agentview` `/bg` 与输入框行首 `⌸` 三合一）的键位与"切换 = 停放"行为（§2.7 / §4.1）、安全模式与救援 profile（§5.5）、
+> IDE 选区通道（§2.7）、图片粘贴适配与终端图片能力（§5.4）、转录边栏 / 全屏草稿编辑 / 折叠终端命令（§5.3）。
+> 旧 `/resume` 的会话删除（`Ctrl+D`）与空壳会话清理属于三合一界面的**有意移除**项，界面上已经没有入口；
+> 已知缺口：英文版待补。
