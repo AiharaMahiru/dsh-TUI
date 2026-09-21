@@ -146,17 +146,19 @@ try {
   // The chip row is exactly one row: badge ・ preview ・ hint, each segment
   // pre-truncated against the input width. Measure what the terminal painted
   // from the first `▸` to the trimmed end with the SAME stringWidth the
-  // truncation arithmetic uses, and hold it inside the input box (inner width
-  // read off the box's own top border). Every separator must be U+30FB, the
-  // glyph get-east-asian-width hardcodes Wide (2 cells): the U+00B7 it
+  // truncation arithmetic uses, and hold it inside the value box the chip is
+  // laid out in: from the chip's own start column (past the ⌸ entry / prompt
+  // glyph slot) to the trailing 2-column expand control — the region
+  // PromptInput's inputWidth budget covers. Every separator must be U+30FB,
+  // the glyph get-east-asian-width hardcodes Wide (2 cells): the U+00B7 it
   // replaced measures 1 cell in the model while CJK terminal fonts paint 2,
   // which is the row drift this chip was fixed for.
   const chipRow = termTest.viewportLines(term).find(row => row.includes('▸ 12 lines')) ?? ''
-  const chip = chipRow.slice(chipRow.indexOf('▸')).trimEnd()
-  const chipBox = termTest.viewportLines(term).find(row => row.startsWith('╭')) ?? ''
-  const chipLimit = stringWidth(chipBox) - 2
+  const chipStart = chipRow.indexOf('▸')
+  const chip = chipRow.slice(chipStart).trimEnd()
+  const chipLimit = stringWidth(chipRow) - chipStart - 2
   check('folded chip row fits the input width (badge・preview・hint)',
-    chip.includes('fold-line-0') && chip.endsWith('hover to peek') &&
+    chipStart >= 0 && chip.includes('fold-line-0') && chip.endsWith('hover to peek') &&
       !chip.includes('·') && stringWidth(chip) <= chipLimit,
     `w=${stringWidth(chip)} limit=${chipLimit}`)
 
