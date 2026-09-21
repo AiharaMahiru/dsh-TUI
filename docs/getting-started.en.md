@@ -117,6 +117,23 @@ dsh-tui.cmd --resume
 last selected by the TUI. Set `DSH_TUI_WORKSPACE` to override the working
 directory used by the batch launcher.
 
+## CLI subcommands
+
+`dsh-tui help` (or `dst help`) prints the full usage; the `dst` alias accepts
+the same commands:
+
+| Command | Purpose |
+| --- | --- |
+| `dsh-tui update` | Update the profile to the latest release and align the launcher (same install logic as the in-TUI `/update`, without restarting into the TUI) |
+| `dsh-tui doctor` | Pre-flight environment checks: dsh/pnpm, profile install and version alignment, whether the API key is set (state only, never the value), config file presence; complements the in-TUI `/doctor` session diagnostics |
+| `dsh-tui safe` | Safe mode: read-only diagnostics, inventory, repair guidance (`safe --rescue` also creates/verifies the clean rescue profile) |
+| `dsh-tui version` | Show the launcher and profile versions (`--version`/`-v` are equivalent) |
+| `dsh-tui help` | Show usage (`--help`/`-h` are equivalent) |
+
+`help`/`version` work even when dsh is missing or the profile is not
+initialized; every other argument is forwarded verbatim to
+`dsh --profile dsh-tui`.
+
 ## Safe mode (`dsh-tui safe`)
 
 When dsh exits unexpectedly, safe mode provides read-only environment
@@ -178,6 +195,17 @@ diagnostics, a profile plugin inventory, and repair guidance.
   remove suspects one by one,
   `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<version>`
   to reinstall/align, and `dsh-tui doctor` for environment diagnostics.
+
+## Running in VS Code / Herdr
+
+- **VS Code**: run directly in the integrated terminal, or use the
+  `dsh-tui-vscode` companion extension on the Marketplace (real terminal
+  sessions, session history, specific-session resume, IDE selection
+  channel). See [VS Code guide](vscode.en.md).
+- **Herdr**: run `dsh-tui` directly in a [Herdr](https://herdr.dev) pane with
+  no extra setup; dsh-TUI reports `idle` / `working` / `blocked` through
+  Herdr's local integration API (questionnaires and tool approvals count as
+  `blocked`), and stays completely inactive outside Herdr.
 
 ## Update to the latest version
 

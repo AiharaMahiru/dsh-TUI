@@ -74,6 +74,15 @@ by `callId`, never guessed from array position.
   replay, avoiding repeated string growth for long streamed messages.
 - **Bounded caches**: transcript, render-node, and measurement caches are bounded;
   removing a bound requires measured evidence.
+- **Zero-allocation hot paths**: the visibleRows pipeline (slice/filter/margins)
+  is memoized on rows identity, length, and a Uint8Array streaming-bit
+  fingerprint — zero array/Map allocations per scroll tick; wrapText and
+  markdown tokens flow through global LRU caches that reuse measurements
+  across mounts.
+- **Framed backfill and landing anchor**: opening the main screen mounts the
+  tail window first and backfills history in frames; `/resume` asserts a final
+  state where the newest message's last row is visible and reachable, and
+  long-session restores skip the splash animation to land straight on content.
 - **Display-cell width**: ANSI escapes, combining marks, emoji, and East Asian
   wide characters use terminal cell width, not JavaScript `string.length`.
 
@@ -81,6 +90,18 @@ When changing `src/ink/` or Yoga, run the CI questionnaire/tool-card regressions
 and the affected scroll, resize, copy-on-select, or PTY harness. Do not print
 diagnostics to an active TUI's stdout; use stderr `DSH_TUI_DEBUG` or
 `DSH_TUI_RENDER_LOG`.
+
+## Status meters and working activity
+
+- **Context progress bar**: based on the pi-nano-context algorithm
+  (largest-remainder segmented coloring + multi-level condensed readouts).
+- **TPS meter**: based on pi-tps-meter — a streaming 1/8-block gauge,
+  historical min-max sparkline, and speed-based semantic colors (≥50 green /
+  ≥20 yellow / <20 red).
+- **working-activity**: the working-status line reuses the pure state machine
+  of [dsh-working-activity](https://github.com/ccch1mneyyy/working-activity),
+  deriving it in-process from base session events without writing UI state
+  into the shared log.
 
 ## Inline and fullscreen modes
 
@@ -183,6 +204,9 @@ visual TUI alone does not describe the effective policy.
   from a file manager can still fall back to an `@` reference when staging fails.
 - Exit restores the terminal and ends the process without waiting for the
   Agent's asynchronous flush; the persistence plugin is the fallback.
+- **Background sessions live inside this process**: they stop when the TUI
+  exits; state and summaries come from the session's own output with no extra
+  summary-model calls; worktree isolation is not provided yet.
 - The tool-level approval panel is implemented (approval service + TUI
   answerer); `/permission` preset switching is provided by the dsh-base
   `permission-presets` plugin and works in profile compositions. When that

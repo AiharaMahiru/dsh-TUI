@@ -124,6 +124,20 @@ dsh-tui.cmd --resume
 `--resume` 会读取 `%USERPROFILE%\.dsh-tui\resume.txt`，恢复 TUI 最近选择的
 会话。设置 `DSH_TUI_WORKSPACE` 可以覆盖批处理启动器采用的工作目录。
 
+## CLI 子命令
+
+`dsh-tui help`（或 `dst help`）打印完整用法，`dst` 别名接受相同命令：
+
+| 命令 | 作用 |
+| --- | --- |
+| `dsh-tui update` | 更新 profile 到最新版本并对齐启动器（与 TUI 内 `/update` 同一安装逻辑，不进入 TUI） |
+| `dsh-tui doctor` | 环境体检：dsh/pnpm、profile 安装与版本对齐、API key 是否设置（只报状态不读值）、配置文件存在性；与 TUI 内 `/doctor` 会话诊断互补 |
+| `dsh-tui safe` | 安全模式：只读诊断、插件清单与修复指引（`safe --rescue` 还会创建/校验干净的救援 profile） |
+| `dsh-tui version` | 显示启动器与 profile 版本（`--version`/`-v` 等价） |
+| `dsh-tui help` | 显示用法（`--help`/`-h` 等价） |
+
+`help`/`version` 在 dsh 缺失或 profile 未初始化时也能用；其余参数原样转发给 `dsh --profile dsh-tui`。
+
 ## 安全模式（`dsh-tui safe`）
 
 dsh 意外结束时，安全模式提供只读的环境诊断、profile 插件清单与修复指引。
@@ -134,6 +148,11 @@ dsh 意外结束时，安全模式提供只读的环境诊断、profile 插件�
 - **非交互环境**：`dsh-tui safe --rescue` 在脚本/管道下执行同一套门禁与创建/复用，只报告结论（就绪退出 0，被拒绝退出 1）；在交互终端里等价于菜单选项 5。
 - **旧全局启动器**：profile 副本不可读或过旧时，先升级启动器：`npm install -g --legacy-peer-deps @deepseek-harness-tui/dsh-tui@<版本>`。
 - **修复命令示例**（安全模式只列出，需自行执行）：`dsh plugin --profile dsh-tui remove <第三方插件>` 逐个移除可疑插件；`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<版本>` 重装对齐；`dsh-tui doctor` 环境诊断。
+
+## 在 VS Code / Herdr 中运行
+
+- **VS Code**：可在集成终端直接运行，或用已上架 Marketplace 的 companion 扩展 `dsh-tui-vscode`（真实终端会话、会话历史、指定会话恢复、IDE 选区通道）。见 [VS Code 使用指南](vscode.md)。
+- **Herdr**：直接在 [Herdr](https://herdr.dev) 窗格中运行 `dsh-tui`，无需额外配置；dsh-TUI 经 Herdr 本地集成 API 报告 `idle` / `working` / `blocked`（问卷与工具审批记为 `blocked`），Herdr 之外完全惰性。
 
 ## 更新到最新版本
 

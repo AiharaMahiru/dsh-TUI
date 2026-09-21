@@ -64,12 +64,20 @@ Channel 只保留适合当前 TUI 的投影。长会话超过窗口后，旧行�
 - **虚拟化消息列表**：屏幕外行使用上一次测量的固定高度占位，不参与完整子树布局。
 - **回放合并**：历史回放时合并连续 token chunk，避免长流式消息触发二次字符串增长。
 - **有界缓存**：transcript、渲染节点和测量缓存有上限；移除上限前必须有测量证据。
+- **零分配热路径**：visibleRows 管线按 rows 身份、长度与 Uint8Array 流式位指纹记忆化，每个滚动 tick 零数组/Map 分配；wrapText 与 markdown token 走全局 LRU 缓存跨挂载复用。
+- **分帧回填与落位锚点**：主屏先挂尾部窗口再分帧回填历史；`/resume` 保证最新消息最后一行可见可达，长会话恢复跳过开屏动画直落内容。
 - **显示宽度**：ANSI、组合字符、emoji 和东亚宽字符都按 terminal cell width 处理，
   不能用普通 JavaScript `string.length` 代替。
 
 改动 `src/ink/` 或 Yoga 时，至少运行 CI 的问卷/工具卡回归，并按影响范围运行
 scroll、resize、copy-on-select 或 PTY 脚本。不要用普通 `console.log` 向活动 TUI 的
 stdout 打印诊断；使用 stderr 的 `DSH_TUI_DEBUG` 或 `DSH_TUI_RENDER_LOG`。
+
+## 状态仪表与工作状态
+
+- **上下文进度条**：基于 pi-nano-context 算法（最大余数分段着色 + 多级紧凑读数）。
+- **TPS 仪表**：基于 pi-tps-meter——流式 1/8 块仪表、历史 min-max 火花线、按速度语义着色（≥50 绿 / ≥20 黄 / <20 红）。
+- **working-activity**：工作状态行复用 [dsh-working-activity](https://github.com/ccch1mneyyy/working-activity) 的纯状态机，进程内从基础会话事件推导，不把 UI 状态写进共享日志。
 
 ## Inline 与 fullscreen
 
@@ -150,6 +158,7 @@ answerer（`approval/request` waterfall），仅允许一次/拒绝两种决定�
   会明确警告并删除临时文件；附件服务不可用时不把位图插入草稿。文件管理器复制的
   图片文件若直接暂存失败，仍可退回 `@` 引用。
 - 退出路径优先恢复终端并结束进程，不等待 Agent 异步落盘；持久化插件负责兜底。
+- **后台会话活在本进程内**：TUI 退出即停止；状态与行摘要来自会话自身输出、无额外摘要模型调用；worktree 隔离尚未提供。
 - 工具级审批面板已实现（approval 服务 + TUI answerer）；`/permission` 的预设
   切换由 dsh-base 的 `permission-presets` 插件提供。registry 服务缺失时使用三项
   legacy 兼容名册；服务已挂载但空、损坏或不一致时标记 unavailable 并 fail closed，

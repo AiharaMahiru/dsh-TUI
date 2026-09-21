@@ -218,7 +218,8 @@ Two directories are involved and neither substitutes for the other:
   Holds profiles, sessions, credentials, and attachments. Early releases pinned
   it to `~/.dsh-cc`.
 - **TUI data directory**: `~/.dsh-tui` (a fixed path, independent of
-  `$DSH_HOME`). Holds `/model`, `/lang`, `/theme` and similar preferences plus
+  `$DSH_HOME`). Holds `/model` (persisted at `~/.dsh-tui/model.json`, surviving
+  restart and `/new`), `/lang`, `/theme` and similar preferences plus
   `resume.txt`. Early releases wrote these under `$DSH_HOME` instead.
 
 `DSH_TUI_RENDER_LOG` may capture visible prompts, tool arguments, and output.

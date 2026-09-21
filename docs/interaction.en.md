@@ -19,6 +19,7 @@
 | `Esc` | Ladder: close help → close the image preview → close the command menu → close the file menu (only the current `@` token) → **with a selection in the prompt input: only clear it (text untouched)** → interrupt the turn and redeliver pending messages → clear non-empty input → double-tap on empty input = rewind; in fullscreen, an active mouse selection is cleared first (not copied) |
 | `Esc` / `Ctrl+C` / `Enter` while an image preview is open | Close the preview and restore the surface underneath; other keys are not passed through |
 | `Left` / `Right` in the image modal | Previous / next image, no wrapping; caret peeks keep arrows with the prompt |
+| `←` (empty input) | Background this session and open the session-management screen (same as `/bg`) |
 | `Ctrl+C` | Interrupt while working; press again while the interrupt is still settling to force-exit; clear non-empty idle input; **while idle with a selection in the prompt input, copy it to the clipboard (selection kept for editing)**; press twice on empty input to exit |
 | `Ctrl+D` | Same ladder as `Ctrl+C`: interrupt while working (press again to force-exit if the interrupt stalls); press twice while idle to exit |
 | `Ctrl+O` | Toggle transcript/verbose detail, including full reasoning and tool arguments/output; also the escape hatch for the **long-line fold** (a single line over 1000 chars is clipped to 1000 with a `… N chars folded` marker — see the user guide §5). Clicking the folded row (or the tool card face) toggles it too |
@@ -32,6 +33,8 @@
 | `Shift+Up` | Enter message selection; arrows move, `Enter` expands one row, `Esc` exits |
 
 The action shortcuts (paste, history search, external editor, `Ctrl+O/T/P/R/L`, subagent dashboard, show-all, todo fold) are remappable in `/settings` → `dsh-tui` → `Shortcuts`: enter combos such as `alt+v`, comma-separate several, leave blank to restore defaults — saves apply live. Combos clashing with the fixed editing keys or another action are rejected. Deployments can also pin them via `shortcuts.<action>` in cordis.yml.
+
+**macOS modifier keys**: the `Ctrl+<key>` bindings above also work with `⌘<key>` on macOS (e.g. `⌘V` paste, `⌘O` expand details, `⌘Enter` send immediately); only `Ctrl+C` / `Ctrl+D` (interrupt/exit) stay on Ctrl, to avoid clashing with muscle memory for macOS system-level `⌘C` copy and similar. `⌘` requires terminal support for the extended keyboard protocol (iTerm2 / kitty / WezTerm / ghostty / tmux); macOS's built-in Terminal.app consumes `⌘` shortcuts itself, so keep using `Ctrl`.
 
 `/` has two meanings. In normal input it opens slash-command completion. In
 the `Ctrl+O` transcript view it opens full-session search; use `n` and `N` to
@@ -326,6 +329,15 @@ list.
 On Windows, `dsh-tui.cmd --resume` uses the session ID last written to
 `~/.dsh-tui/resume.txt`.
 
+### Background sessions
+
+`/bg` (alias `/background`) moves the current session to the background and
+keeps it running, switches the terminal to a fresh session, and opens the
+session-management screen; `←` on an empty prompt does the same. While a
+background session waits on you, the prompt footer shows `← N agents`. A
+background session awaiting approval shows as **needs input**, and the
+approval panel labels which session it comes from.
+
 ### Rewind
 
 Double-tap `Esc` on an empty editor to open the user-message list. After a
@@ -433,8 +445,8 @@ owns native scrollback and selection.
 
 | Action | Behavior |
 | --- | --- |
-| Wheel | Routed by position: moves the selected row in the completion/command menu under the pointer; scrolls the topmost scroll container (transcript / help / subagent panel); elsewhere scrolls the message list; never scrolls the transcript behind an open overlay; moves the cursor in the trajectory scene (±3 rows per notch on the timeline, ±1 in hotspot, scrolls the detail while expanded); walks the focused row in /settings |
-| Drag | Select text, copy on release, then clear the selection; with `dsh-tui.scrollGutter: scrollbar` the right-edge scrollbar is a drag target — an unmodified left drag scrubs the transcript to the track position (the same mapping as a track click: drag to point), while `Shift`/`Alt`/`Ctrl`+drag still selects text (the drag protocol opens only for unmodified left presses) |
+| Wheel | Routed by position: moves the selected row in the completion/command menu under the pointer; scrolls the topmost scroll container (transcript / help / subagent panel); elsewhere scrolls the message list (±3 lines per notch); never scrolls the transcript behind an open overlay; moves the cursor in the trajectory scene (±3 rows per notch on the timeline, ±1 in hotspot, scrolls the detail while expanded); walks the focused row in /settings |
+| Drag | Select text, copy on release, then clear the selection — a "Copied N characters" notice pops up; with `dsh-tui.scrollGutter: scrollbar` the right-edge scrollbar is a drag target — an unmodified left drag scrubs the transcript to the track position (the same mapping as a track click: drag to point), while `Shift`/`Alt`/`Ctrl`+drag still selects text (the drag protocol opens only for unmodified left presses) |
 | Double/triple click | Select and copy a word/line (exception: the `scrollGutter: scrollbar` track is a drag target, so multi-clicks there no longer select a line) |
 | `Esc` | Cancel an active drag (or an existing selection) without copying |
 | Single-click a message row | Plain text rows (user/assistant) do nothing — the transcript is a reading surface, selection is the mouse's job there |
@@ -457,6 +469,7 @@ owns native scrollback and selection.
 | Single-click a /settings field / group row | Focus it and run that row's Enter action (boolean/select cycles, text enters edit, groups open); hover moves the focus (lazygit-style); the edit mode ignores the mouse entirely |
 | Single-click a session-browser confirm row | Confirm the delete/clean (same as Enter); cancelling stays on keyboard Esc |
 | Single-click a help-menu command row | Fill `/name ` into the prompt and close the help (the Tab completion's mouse equivalent) |
+| Click a timeline-rail tick | Jump to that turn — the rail covers every turn (folded ones included); a folded tick reveals its turn first, then scrolls it into place |
 | Keyboard selection extension | With a selection, `Shift+←/→/↑/↓/Home/End` extends / shrinks it (wraps across lines) |
 
 These mouse behaviors apply only under `fullscreen: true` (alternate screen);
@@ -481,7 +494,7 @@ keyboard:
 | `Esc` (from question 2 onward) | Return to the previous question and keep the current draft |
 | `Esc` (from question 1) | Cancel the whole batch; the model receives `ASK_CANCELLED` |
 | `Ctrl+C` | Cancel the whole batch from any question; the model receives `ASK_CANCELLED` (a harness-side abort still reports `ASK_ABORTED`) |
-| `Ctrl+K` | Fold/unfold the ask_user_question questionnaire panel |
+| `Ctrl+K` | Fold/unfold the ask_user_question questionnaire panel (the ask keeps waiting; while folded, `Esc`/`Ctrl+C` expand first) |
 
 The last row is a free-form input line: typing directly on an option row
 submits that option's label **plus** your custom text together (no need to
@@ -538,13 +551,15 @@ zh; unmapped registry commands fall back to the registry's own text.
 
 | Group | Commands |
 | --- | --- |
-| Sessions | `/new`, `/resume`, `/home`, `/agentview` (all three open the same session-management screen), `/bg` (alias `/background`, backgrounds the session and opens that screen), `/rename`, `/recap` (recent-activity summary + one-key suggested title), `/workspace resume|rename|open`, `/clear`, `/compact`, `/export`, `/btw`, `/trace` (trajectory scene, also `Ctrl+T`), `/rewind` (time travel, same as double-`Esc` on an empty input) |
+| Sessions | `/new`, `/resume`, `/home`, `/agentview` (all three open the same session-management screen), `/bg` (alias `/background`, backgrounds the session and opens that screen), `/rename`, `/recap` (session recap: apply the suggested title in one key; `/settings` can enable an auto-summary on session open — on by default: a divider + `Recap:` line appears at the bottom of the transcript when resuming, and bows out once you send a new message), `/workspace resume|rename|open`, `/clear`, `/compact`, `/export`, `/btw`, `/trace` (trajectory scene, also `Ctrl+T`), `/rewind` (time travel, same as double-`Esc` on an empty input), `/tree` (session family tree: every fork branch stitched together; hover previews a node, click opens a rewind / fork-here / adopt-branch menu), `/fork` (copy the current session into a resumable twin; the original is untouched) |
 | Status | `/context`, `/status`, `/cost`, `/balance` (official DeepSeek balance: summary row + hover details, click to refresh), `/config`, `/doctor`, `/init`, `/agents`, `/jobs` (background jobs panel: status/elapsed/exit code, `k` kills), `/settings` |
 | Model and display | `/model`, `/effort`, `/thinking`, `/tokens`, `/activity`, `/preset`, `/theme`, `/color` (session accent color: bare opens the palette picker, `<name>` sets directly, `status`/`reset`; input border + session-name chip at the top-right, per-session; chip off by default, enable in `/settings`), `/lang` |
 | Account and policy | `/provider`, `/login`, `/logout`, `/permission`, `/add-dir`, `/hooks`, `/mcp`, `/plugins` (`check <path>` validates a plugin manifest) |
 | Skills | `/skills` lists skills DSH discovers from the active profile, user, and project; user-invocable skills join the menu as `/name` |
 | Other | `/update`, `/vim` (vim editing mode toggle — see “Editing keys”), `/terminal-setup`, `/connect`, `/help`, `/exit` (aliases `/quit`, `/q`) |
 | Registry | `/plan`, `/goal`, and any other command registered by the DSH composition |
+
+> Unknown commands are sent to the model as ordinary messages (e.g. in a composition where `/permission` is not mounted).
 
 dsh-TUI does not preinstall general-purpose skills; DSH and the active
 composition own skill content and discovery.
@@ -562,6 +577,7 @@ Additional forms:
 - `/preset <id>` and `/preset status` are described in the configuration guide.
 - `/effort` opens the reasoning-effort slider (←/→ adjusts live);
   `/effort <id>` sets a level directly; `/effort status` reports the current one.
+- `/model` opens a two-level picker: a pinned **Recently used** group first — the last 10 switched models, persisted at `~/.dsh-tui/model-recents.json` — then provider groups; `Enter` drills into a group's models, and a single provider with no recents skips straight to the list. Switching = fork continuation, history preserved.
 - `/theme <name>` and `/theme status` are described in the theme guide.
 - `/permission` reads the DSH `permissionPresets` registry, preserving registry order for the picker, completion and the `Shift+Tab` cycle. Third-party presets need no TUI hard-coding. While the service snapshot is usable the TUI owns `/permission` as a local command: bare run opens the picker, an argument switches directly, `status` prints the current preset and policy explainer. Switches prefer the official `/permission <preset>` command; when the command row never reaches this agent's registry the TUI falls back to the service's own official write path (the same handler, real events) and confirms via event/readback; when neither is available it fails loudly instead of sending the input to the model. Exiting plan mode restores the pre-plan atoms first, then the durable preset you were on before plan mode (while the registry still offers it). When the registry service is absent, TUI uses its legacy three-row compatibility roster; a mounted but broken service is unavailable and fails closed.
 - `/lang` toggles the interface language (see “Interface language”).

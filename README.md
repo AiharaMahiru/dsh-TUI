@@ -164,259 +164,61 @@ restarts automatically and resumes the current session. See
 source builds, and troubleshooting — including migration from the former
 `dsh-cc-tui` package.
 
-### CLI subcommands
-
-`dsh-tui help` (or `dst help`) prints the full usage; the `dst` alias accepts
-the same commands:
+### CLI
 
 | Command | Purpose |
 | --- | --- |
-| `dsh-tui update` | Update the profile to the latest release and align the launcher (same install logic as the in-TUI `/update`, without restarting into the TUI) |
-| `dsh-tui doctor` | Pre-flight environment checks: dsh/pnpm, profile install and version alignment, whether the API key is set (state only, never the value), config file presence; complements the in-TUI `/doctor` session diagnostics |
-| `dsh-tui safe` | Safe mode: read-only diagnostics, inventory, repair guidance (`safe --rescue` also creates/verifies the clean rescue profile) |
-| `dsh-tui version` | Show the launcher and profile versions (`--version`/`-v` are equivalent) |
-| `dsh-tui help` | Show usage (`--help`/`-h` are equivalent) |
+| `dsh-tui` / `dst` | Start the TUI (the short alias runs the same program) |
+| `dsh-tui --resume [id]` · `dsh-tui update` · `dsh-tui doctor` | Resume a session · update the profile and align the launcher · pre-flight environment checks |
+| `dsh-tui safe` | Read-only diagnostics, plugin inventory and repair guidance; `safe --rescue` builds a clean rescue profile |
+| `dsh-tui version` · `dsh-tui help` | Launcher/profile versions and usage — both work even without a `dsh` install |
 
-`help`/`version` work even when dsh is missing or the profile is not
-initialized; every other argument is forwarded verbatim to
-`dsh --profile dsh-tui`.
+Every other argument is forwarded verbatim to `dsh --profile dsh-tui`. Safe mode's exact boundary and gate list: [Getting started → Safe mode](docs/getting-started.en.md#safe-mode-dsh-tui-safe).
 
-### Safe mode (`dsh-tui safe`)
-
-When dsh exits unexpectedly, safe mode offers **read-only** environment
-diagnostics, a profile plugin inventory, and repair guidance: interactive
-terminals get a prompt after a non-zero dsh exit, or run `dsh-tui safe`
-manually; the rescue profile's cleanliness is proven check by check and the
-rescue refuses to start when it cannot be (fail-closed) — entries are matched
-by name and shape before any rebuild, so your files are never silently
-deleted. Full boundary and gate list:
-[Safe mode](docs/getting-started.en.md#safe-mode-dsh-tui-safe).
-
-### Running in VS Code / Herdr
-
-- **VS Code**: run directly in the integrated terminal, or use the
-  `dsh-tui-vscode` companion extension on the Marketplace (real terminal
-  sessions, session history, specific-session resume, IDE selection
-  channel). See [Running dsh-TUI in VS Code](docs/vscode.en.md).
-- **Herdr**: run `dsh-tui` directly in a [Herdr](https://herdr.dev) pane with
-  no extra setup; dsh-TUI reports `idle` / `working` / `blocked` through
-  Herdr's local integration API (questionnaires and tool approvals count as
-  `blocked`), and stays completely inactive outside Herdr.
+**VS Code**: the integrated terminal, or the `dsh-tui-vscode` companion extension (multiple sessions, session history, specific-session resume, IDE selection channel) — [VS Code guide](docs/vscode.en.md). **Herdr**: run `dsh-tui` in a [Herdr](https://herdr.dev) pane with no setup; it reports `idle` / `working` / `blocked` (questionnaires and tool approvals count as `blocked`) through Herdr's local integration API, and stays inactive outside Herdr.
 
 ## Keybindings & Mouse
 
-| Key | Action |
-| --- | --- |
-| `Enter` | Idle = send (`Shift+Enter` for a newline, or `Ctrl+J` when the terminal cannot report modified Enter; `Option+Enter` is the fallback on macOS Terminal.app, issue #110); **while the model is working = steer** (inject a next-step boundary without interrupting); executes the selected item when a command menu is open |
-| `Ctrl+Enter` (⌘Enter) | **Interrupt the current turn and send immediately** (interrupt) |
-| `Alt+Up` | Pull the last unhandled message back into the input for editing (without interrupting the turn) |
-| `PgUp` / `PgDn` | Page the fullscreen transcript (one viewport minus one row; Help and paging overlays keep them and page their own lists; the question panel leaves them for the transcript); inline mode leaves them to the terminal's native scrollback |
-| `Tab` | Complete `/` commands or `@` files (keep drilling into directories); **while the model is working = follow-up** (queued after the current turn) |
-| `Ctrl+C` | Interrupt the current turn; press again while the interrupt is still settling to force-exit; press twice while idle to exit; **with an active mouse selection in the prompt, copies it to the clipboard and keeps it** |
-| `Esc` | Close an open image preview; close the command/file menu; **with an active selection in the prompt: only clears the selection**; double-press while idle clears the input; **double-press on empty input = time rewind** |
-| `←` (empty input) | **Background this session and open the session-management screen** |
-| `Ctrl+O` | Expand/collapse details (full thinking text, tool arguments and output) |
-| `Ctrl+Shift+E` | Expand the fullscreen draft editor (Enter = newline, `Ctrl+Enter` = send, `Esc` = collapse keeping the draft; line numbers, wheel scrolling, click/drag selection) |
-| `Ctrl+R` | History search |
-| `/` | In-session full-text search (`n`/`N` to jump) |
-| `Ctrl+V` / `Alt+V` | Paste text or files from the file manager; images show as `[Image #N]` and are sent as durable attachments. Use `Alt+V` when the terminal intercepts `Ctrl+V` |
-| `Ctrl+G` | Edit the current input with `$VISUAL`/`$EDITOR` (e.g. nvim); content is filled back in on save and exit |
-| `/vim` | Toggle vim editing for the prompt (session-scoped): `Esc` switches to NORMAL (`h/l/j/k`, `0/^/$`, `w/b`, `x/X`, `dd`/`d$`/`d0`/`dw`, `u` undo), `i/a/o` back to INSERT |
-| `?` | Keybinding menu (responds only when the input is empty) |
-| `Shift+↑` | Message selection mode (`Enter` expands a single message) |
-| `Ctrl+P` | Toggle the startup loaded-context panel while it is on screen (the old pin shortcut inside `/resume` is gone; pin a session by clicking its row's ★) |
-| `Home` / `End`, `Ctrl+A` / `Ctrl+E` | `Ctrl+A` opens the subagent dashboard (in-editor `Mod+A` still moves to line start); `Ctrl+E` is dual-purpose: line end in the input, expand/collapse hidden older messages during transcription |
-| `Ctrl+←` / `Ctrl+→` (⌘←/→) | Jump by word |
-| `←` / `→` (image modal) | Previous / next image; caret peeks retain prompt editing |
-| `Ctrl+U` / `Ctrl+K` | Delete before the cursor (to line start) / after the cursor (to line end) |
-| `Ctrl+W` | Delete the previous word |
+`Enter` send · `Tab` complete `/` and `@` · `Ctrl+Enter` interrupt and send · `Alt+Up` recall the last message · `Esc` dismiss (double-`Esc` on an empty prompt = time rewind) · `Ctrl+O` expand details · `Ctrl+R` history search · `Ctrl+V` paste (images become `[Image #N]` attachments) · `Ctrl+Shift+E` fullscreen draft editor · `?` all shortcuts · `←` on an empty prompt backgrounds the session and opens the session manager.
 
-**Three delivery modes while the model is working**: `Enter` = steer (inject a next-step boundary, no interruption) · `Tab` = follow-up (queued after the current turn) · `Ctrl+Enter` = interrupt (break in and send immediately).
+While the model is working: `Enter` steers, `Tab` queues a follow-up, `Ctrl+Enter` interrupts and sends.
 
-**Custom keybindings**: the action shortcuts above (paste, history search, external editor, transcript expand, trajectory, subagent dashboard, loaded-context panel, show-all, redraw, todo fold) are remappable in `/settings` → `dsh-tui` → `Shortcuts`: enter combos like `alt+v` or `ctrl+shift+v`, comma-separate several, leave blank to restore the default; saves apply live with no restart. Combos that clash with the fixed editing keys (`Ctrl+A/E/U/K/W`, `Ctrl+←/→`) or with another action are rejected. Deployments can also pin them statically via `shortcuts.<action>` in cordis.yml (the settings user layer wins).
+Mouse (fullscreen, the factory default): drag to select and **copy on release**, double/triple click for a word/line, click a tool card to fold it, click a timeline-rail tick to jump to that turn, click an `[Image #N]` for the centered preview.
 
-**macOS modifier keys**: the `Ctrl+<key>` bindings above also work with `⌘<key>`
-on macOS (e.g. `⌘V` paste, `⌘O` expand details, `⌘Enter` send immediately);
-only `Ctrl+C` / `Ctrl+D` (interrupt/exit) stay on Ctrl, to avoid clashing
-with muscle memory for macOS system-level `⌘C` copy and similar. `⌘` requires
-terminal support for the extended keyboard protocol (iTerm2 / kitty / WezTerm /
-ghostty / tmux); macOS's built-in Terminal.app consumes `⌘` shortcuts itself,
-so keep using `Ctrl`.
+Every key, the mouse and questionnaire tables, the image modal, macOS `⌘` support and remapping in `/settings → Shortcuts`: [Interaction and commands](docs/interaction.en.md).
 
-**Mouse** (fullscreen is the factory default since 0.9.0; set `fullscreen: false` to restore the inline main screen; updating from an older version clears a previously saved inline choice once — you can still pick inline again afterwards):
+## Built-in Commands
 
-| Action | Function |
-| --- | --- |
-| Drag to select | In-app text selection, **copied on release** (OSC 52 with native `wl-copy`/`xclip`/`xsel` fallback; `load-buffer -w` inside tmux); the selection is cleared after copying and a "Copied N characters" notice pops up |
-| Double / triple click | Select word / line, copied on selection just the same |
-| Drag inside the prompt input | Build an in-input selection (rendered highlight): `Backspace`/`Delete` delete it, typing replaces it, `←/→` collapse it to the corresponding edge, `Esc` only clears it; a folded paste block keeps the selection on the clicked side |
-| `Shift+click` in the prompt input | Extend the selection from its start edge (or the caret) to the clicked position |
-| Double-click a word in the prompt input | Select the whole word (paths and punctuation runs select as one; detected in the component, 500 ms / 1 cell) |
-| `Ctrl+C` with a prompt selection | Copy the selection to the clipboard (OSC 52 + native fallback) and keep it for editing |
-| Scroll wheel | Only with fullscreen mouse tracking: scroll Help while it is open, otherwise scroll messages (±3 lines per notch); default inline mode does not deliver wheel events to the TUI |
-| Click a timeline-rail tick | Jump to that turn — the rail covers every turn (folded ones included); a folded tick reveals its turn first, then scrolls it into place |
-| `Esc` | Cancel an in-progress drag selection (no copy) |
-| Single-click a message line | Expand/collapse that line |
-| Click a staged `[Image #N]` token / a transcript thumbnail | Open the centered image preview (metadata fallback without Kitty/Sixel graphics); click outside the preview to close it |
-| Click "load earlier messages" / "ctrl+e show previous N" | Load earlier messages / expand all |
-| Click the StickyHeader / "↓ N new messages" | Jump back to the pinned message / scroll to the bottom |
-| Click a hyperlink | Open it in your browser |
-| Keyboard selection extension | With a selection active, `Shift+←/→/↑/↓/Home/End` extends or shrinks it (wrapping across lines) |
+`/resume` (also `/home`, `/agentview`, `/bg`, or `⌸` at the head of the prompt) opens the one session-management screen: workspace rail, that workspace's sessions, live state, filter, ★ pins. `/model` switches by forking. Everyday companions: `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`.
 
-**Questionnaires** (when the model fires `ask_user_question`):
+**Background sessions**: `/bg` (or `←` on an empty prompt) moves the current session to the background — it keeps running — and opens that screen; `Esc` goes back to it. They live inside this process (turns, tools and approvals work as usual) and stop when the TUI exits; the logs survive.
 
-| Key | Action |
-| --- | --- |
-| `↑/↓` | Choose an option |
-| `Space` | Toggle multi-select options |
-| `Tab` | Switch to a custom answer (type directly without picking an option) |
-| `Enter` | Submit the current selection |
-| `Esc` (from question 2 onward) | Return to the previous question and keep the current draft |
-| `Esc` (from question 1) / `Ctrl+C` | Cancel the whole question batch (the model receives ASK_CANCELLED and can continue the conversation) |
-| `Ctrl+K` | Fold/unfold the questionnaire panel (the ask keeps waiting; while folded, `Esc`/`Ctrl+C` expand first) |
-
-## Built-in Commands & Agent View
-
-**Built-in commands** (routed through the official DSH pipeline):
-
-| Group | Commands |
-| --- | --- |
-| Session | `/new` new session · `/resume`, `/home`, `/agentview` open the one session-management screen (workspace rail + that workspace's sessions, live state, filter, in-row ★ pins) · `/bg` (alias `/background`) background this session and open that screen · `/rename` rename session · `/recap` session recap (apply the suggested title in one key; `/settings` can enable an auto-summary on session open — on by default: a divider + `Recap:` line appears at the bottom of the transcript when resuming, and bows out once you send a new message) · `/workspace resume\|rename\|open` manage workspaces · `/clear` clear screen · `/compact` compact · `/export` export Markdown · `/trace` trace timeline (or `Ctrl+T`) · `/rewind` rewind picker (same as double-`Esc` on empty input) · `/tree` session family tree (every fork branch stitched together; hover previews a node, click opens a rewind/fork-here/adopt-branch menu) · `/fork` copy the current session into a resumable twin (the original is untouched) · `/btw <question>` side question (never interrupts the main turn, writes no history) |
-| Status | `/context` loaded-context details · `/status` session info · `/cost` token usage · `/doctor` environment self-check · `/config` configuration sources · `/init` create AGENTS.md · `/settings` settings panel (namespace read/edit) |
-| Model | `/model` two-level picker (a pinned **Recently used** group first — the last 10 switched models, persisted at `~/.dsh-tui/model-recents.json` — then provider groups; Enter drills into a group's models; a single provider with no recents skips straight to the list; **switching = fork continuation, history preserved**) · `/effort` reasoning effort (slider / `status` / `<id>`; the default level new sessions start on is set in `/settings` → Default reasoning effort; an unavailable requested tier falls back to the nearest lower one with a loud notice) · `/preset` agent preset (**cannot switch once the session has started** — blank-only) · `/thinking` thinking display · `/tokens` token details · `/activity` working animation (`frames <name>` / `status`) · `/theme` theme picker · `/color` (bare opens the palette picker; `<name>` sets directly; `status`/`reset`) session accent color (input border + session-name chip at the top-right, per-session; chip off by default, enable in `/settings`) · `/lang` zh/en UI switch (also selectable in `/settings`) |
-| Accounts/Policy | `/provider` manage model providers — add a provider, or edit an existing one via a menu (API key · model list · delete the provider; custom endpoints also get base URL · wire protocol; a targeted edit patches only that field, the rest of the profile survives untouched; the model list pre-checks what you already enabled; only user-layer providers are editable) (includes the bundled dsh-auth **subscription OAuth sign-in** branch — ChatGPT / Claude / Grok, no API key; same source as `/auth status\|login\|logout`) · `/login` credential & account status · `/logout` logout notes · `/permission` dynamic preset/status notes · `/add-dir` file-policy scope · `/hooks` · `/mcp` |
-| Skills | `/skills` lists skills discovered by DSH; user-invocable skills join the `/` menu as `/name` |
-| Other | `/agents` subagent list · `/plugins check <path>` plugin diagnostics · `/update` auto-update and restart · `/vim` vim editing mode toggle · `/terminal-setup` · `/connect` · `/help` · `/exit` (aliases `/quit` `/q`) |
-| Registry | `/plan` `/goal` `/feedback` `/permission` (DSH command-registry plugins, merged into the `/` menu automatically with the plugin) |
-
-> Unknown commands are sent to the model as ordinary messages (e.g. in a composition where `/permission` is not mounted).
-
-**Background sessions** (`/bg`, or `←` on an empty prompt):
-
-`/bg` (alias `/background`) moves the current session to the background and keeps it running, switches the terminal to a fresh session, and opens the session-management screen (same screen as `/agentview`). `←` on an empty prompt does the same; `Esc` leaves that screen back to the session you just backgrounded (picking a session in the list takes precedence), and the prompt footer shows `← N agents` while a background session waits on you.
-
-- Background sessions run inside this process with turns, tools and approvals working as usual; they stop when the TUI exits, logs survive, and `/resume` or the session screen brings them back (no supervisor process).
-- The screen lists each workspace's sessions with live state (needs input · working · completed · …) and a one-line summary from the session's own output, no extra model calls; `Enter` opens a row, `Ctrl+X` stops the focused **background** session (never the one you're attached to).
-- A background session awaiting approval shows as **needs input**; the approval panel labels which session it comes from.
+Full command reference, arguments and registry commands: [Interaction and commands → Slash commands](docs/interaction.en.md#slash-commands).
 
 ## Configuration & Extensions
 
-- **Agent presets**: four official agent modes (`standard` / `ptc` / `minimal` / `cordis`)
-  plus the TUI-bundled Liangshen mode (`liangshen`),
-  switched with `/preset`; sessions that already have a conversation cannot switch, while
-  blank sessions take effect immediately. The default preset persists in
-  `~/.dsh-tui/agent-preset.json`; `/model` selections persist in `~/.dsh-tui/model.json`.
-  Under the `en` UI language the `/preset` picker shows localized English names
-  and descriptions for the built-in presets.
-  See [Configuration](docs/configuration.en.md#agent-presets).
-- **Themes**: the `/theme` picker (`auto` follows the system/terminal background,
-  built-in `light` / `dark` / `dark-ansi`) accepts static themes from
-  `~/.dsh-tui/themes/<name>.json` and runtime themes registered by npm plugins through
-  `ctx.tuiThemes` — selecting one hot-swaps and persists it; precedence is
-  `DSH_TUI_THEME` env var > persisted selection > OSC 11 terminal-background auto-detection.
-  See [Themes](docs/themes.en.md).
-- **MCP**: servers are mounted via `@deepseek-ai/dsh-mcp-client`, with tools registered as
-  `mcp__<server>__<tool>`; `/mcp` shows connection status.
-  See [Configuration](docs/configuration.en.md#mcp).
+Agent presets (`standard` / `ptc` / `minimal` / `cordis`, plus the bundled `liangshen`), themes (built-in, `~/.dsh-tui/themes/*.json`, npm plugin themes), MCP servers and the whole environment-variable surface: [Configuration](docs/configuration.en.md) · [Themes](docs/themes.en.md).
 
-## How It Works & Technical Notes
+## How It Works
 
 ```text
-dsh profile
-  -> dsh-base
-  -> dsh-TUI Cordis patch
-  -> agent preset + DSH services
-  -> session/event
-  -> Channel projection
-  -> React components
-  -> Ink/Yoga renderer
-  -> terminal
+dsh profile → dsh-base → dsh-TUI Cordis patch → agent preset + DSH services
+  → session/event → Channel projection → React components → Ink/Yoga renderer → terminal
 ```
 
-The TUI owns interaction and presentation only. The session log remains the
-conversation source of truth, while model calls, tool execution, fork/resume,
-compaction, and persistence remain owned by DSH services. See the
-[architecture guide](docs/architecture.en.md) for module boundaries and
-performance details.
+The TUI owns interaction and presentation only: the session log stays the source of truth, while model calls, tool execution, fork/resume, compaction and persistence stay in DSH services. Rendering is event-driven and virtualized at the layout level, so a long session costs O(visible window) per frame; the palette follows the terminal background (OSC 11).
 
-```text
-chat / tool base events ──> persisted Session log ──> TUI / Web
-          └───────────────> ActivityTracker (memory) ──> TUI status only
-```
-
-- **Gentle Mist Blue palette**: mist blue carries only branding, focus, interaction,
-  and highlights; body text stays neutral gray. On startup the terminal background
-  color (OSC 11) is queried to auto-select a light or dark palette, falling back to
-  dark when the terminal does not respond.
-- **Event-driven rendering**: the `session/event` stream drives incremental differential
-  rendering; scroll state is maintained independently.
-- **Layout-level virtualization**: per-frame cost for long sessions drops from
-  O(entire session) to O(visible window) — off-screen message lines render as
-  height-only placeholders whose subtrees never take part in layout.
-- **Zero-allocation hot paths**: the visibleRows pipeline (slice/filter/margins)
-  is memoized on rows identity, length, and a Uint8Array streaming-bit
-  fingerprint — zero array/Map allocations per scroll tick; wrapText and
-  markdown tokens flow through global LRU caches that reuse measurements
-  across mounts.
-- **Framed backfill and landing anchor**: opening the main screen mounts the
-  tail window first and backfills history in frames; `/resume` asserts a final
-  state where the newest message's last row is visible and reachable, and
-  long-session restores skip the splash animation to land straight on content.
-- **Context progress bar**: based on the pi-nano-context algorithm (largest-remainder
-  segmented coloring + multi-level condensed readouts).
-- **TPS meter**: based on pi-tps-meter — a streaming 1/8-block gauge, historical
-  min-max sparkline, and speed-based semantic colors (≥50 green / ≥20 yellow / <20 red).
-- **working-activity ecosystem**: the working-status line reuses the pure state machine of
-  [dsh-working-activity](https://github.com/ccch1mneyyy/working-activity),
-  deriving it in-process from base session events without writing UI state into the shared log.
-- **Terminal paste**: in raw mode `Ctrl+V` is handled by the app and reads the system
-  clipboard per platform — PowerShell `Get-Clipboard` on Windows, `osascript`/`pbpaste`
-  on macOS, and auto-detected `wl-paste`/`xclip`/`xsel` on Linux; regular non-image
-  files insert their path, while copied image files and clipboard bitmaps are written
-  to the attachment library and shown in the input as `[Image #N]`; plain text is
-  inserted at the cursor.
+Runtime path, module boundaries, performance notes and persistence locations: [Architecture and limitations](docs/architecture.en.md).
 
 ## Known Limitations
 
-- Injected context (plugin source content) has no standalone display and is merged
-  into the progress-bar statistics along with the system prompt.
-- `/model` live switching works via "session fork continuation" (DSH has no in-place
-  model-switch API): history is preserved as-is, the new session routes to the new
-  model, and the old session stays in the `/resume` list; the choice is written to
-  `~/.dsh-tui/model.json` and survives both restart and `/new`.
-- `Ctrl+V` clipboard reads depend on external tools per platform: PowerShell
-  `Get-Clipboard` on Windows (auto-retries when the clipboard is briefly locked by
-  another process, silently gives up when persistently locked); `osascript`/`pbpaste`
-  on macOS (multi-file copies in Finder have no stable AppleScript read path, falling
-  back to text/images); Linux needs one of `wl-paste`/`xclip`/`xsel` and a connectable
-  session (a missing tool or unreachable session shows a "no clipboard tool available"
-  notice). Unsupported clipboard-bitmap formats are rejected with a warning and
-  their private temporary export is deleted; an unavailable attachment service
-  likewise leaves the bitmap out of the draft. Copied image files can still fall
-  back to an `@` reference when direct staging fails.
-- Exit finishes with a process exit and does not wait for the agent's async disk writes
-  (persistence is covered by the persistence plugin as a backstop).
-- **Background sessions live inside this process**: they stop when the TUI exits; state and summaries come from the session's own output with no extra summary-model calls; worktree isolation and shell background jobs are not shipped yet.
-- Tool-level approval is implemented: the approval service + TUI answerer (local
-  approval panel) consumes the approval stream, and privilege-escalation commands pop
-  an approval bar. `/permission` preset switching comes from dsh-base's
-  `permission-presets` plugin and is available in the profile composition by default.
-  If that registry service is absent, TUI uses its legacy three-row compatibility
-  roster; a malformed mounted service is unavailable and fails closed. If the
-  external `/permission` command is not registered, input keeps the existing
-  default/model dispatch behavior.
-- `/connect` `/hooks` are reserved placeholders: the corresponding
-  capabilities have no equivalent mechanism on the DSH side, and the commands give an
-  explicit explanation rather than staying silent.
-- The `/thinking` display toggle is **not persisted**; restarts and new sessions fall
-  back to the default.
-- `/compact` is unavailable under the `minimal` preset (that preset does not compose
-  compaction).
-- `/update` works only when started via `dsh --profile` and is refused while a turn is
-  running.
+- Injected plugin context has no standalone display; it counts into the context segments.
+- `/model` switches by forking the session (DSH has no in-place model switch): history is preserved and the old session stays in `/resume`.
+- `Ctrl+V` reads the clipboard through platform tools; unsupported bitmap formats are rejected with a warning.
+- A background session lives inside this process and stops when the TUI exits.
+- `/thinking` is not persisted; `/compact` is unavailable under the `minimal` preset; `/update` needs a `dsh --profile` launch and is refused while a turn is running.
 
-See [Architecture and limitations](docs/architecture.en.md) for the complete list of
-known limitations and the security boundary.
+Full list: [Architecture and limitations → Known limitations](docs/architecture.en.md#known-limitations).
 
 ## Development
 
@@ -437,39 +239,9 @@ changes also require the relevant regression scripts.
 
 ## Plugin Ecosystem
 
-Want to build a plugin or extension for dsh-TUI? Join the ecosystem:
+Building a plugin? Start with the [admission & development guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) (seams, contracts, verification checklist), the [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template) and the [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) organization; `dsh-working-activity` is the reference implementation.
 
-- **Interface & compatibility agreement / Plugin development guide**: [Terminal Interactive Ecosystem Plugin Admission and Development Guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) (admission spec, seams, contracts, verification checklist)
-- **Organization**: [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem)
-  (home of community plugins and templates)
-- **Template repository**: [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template)
-  (start from the template and ship a plugin in minutes)
-- **Reference implementation**: `dsh-working-activity` (live working-status
-  line with dual outlets: TUI prompt slot + `activity/status` session events)
-
-### Seam stability reference
-
-An **informal** maturity grading to help plugin authors gauge investment;
-the authoritative status and compatibility agreement live in the
-[admission & development guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md):
-
-| Tier | Seams |
-| --- | --- |
-| Stable candidate (shape frozen; breaking changes go through a minor-version deprecation warning before removal) | VI settings sections · VIII full-screen scenes · X managed dialogs · XI status line · XII keyboard shortcuts · XIII entry renderers |
-| Experimental (may still shift with dsh-std / admission-spec evolution) | IX decision events · toast notifications (`ctx.tuiToast`, new) |
-| Upstream-tracked (stability owned by the cordis / dsh mechanisms underneath) | I session events · II official prompt slots · III bundled skills · IV themes · V system-prompt sections · VII profile composition |
-
-Also an experimental public surface: `@deepseek-harness-tui/dsh-tui/api`
-(types-only entry). The `@deepseek-harness-tui/dsh-tui/test-utils` subpath and
-`ctx.tuiPluginHost.grants.corrupt` were removed in the adapter layering refactor
-(#705), and `grants` is now the narrower `HostGrantFacade`; see that PR for
-migration details.
-
-The core repository remains independent; community plugins live in their own
-repos. The organization only maintains the listing and admission rules — it
-does not endorse or warrant the functionality, quality, or safety of community
-plugins. Plugin authors keep full ownership of their repositories and are
-responsible for their maintenance and security.
+Seam stability grading, the types-only `@deepseek-harness-tui/dsh-tui/api` entry and migration notes: [Plugin development](docs/plugins.en.md). The organization maintains the listing and admission rules only — it does not endorse or warrant community plugins.
 
 ## Documentation
 
@@ -508,24 +280,11 @@ The complete bilingual index is [`docs/README.md`](docs/README.md).
 
 ## Permissions and Security Boundary
 
-> **Windows security warning:** The Windows profile defaults to `danger-full-access` with approval set to `never`. Tools therefore have unrestricted access; before starting in an environment with sensitive credentials or an untrusted repository, inspect and tighten the profile configuration.
+> **Windows security warning:** the Windows profile defaults to `danger-full-access` with approval set to `never`, so tools have unrestricted access. Inspect and tighten the profile before starting next to sensitive credentials or in an untrusted repository.
 
-`dsh-TUI` does not implement a separate sandbox. It uses the filesystem,
-shell, sandbox, and approval policies of the active DSH profile. Permission
-presets come from the mounted DSH `permissionPresets` registry (a missing
-service falls back to the legacy three-row compatibility roster; a mounted
-but unusable one is marked unavailable and fails closed — never an invented
-roster), and third-party presets appear automatically in completion, the
-picker, and the `Shift+Tab` cycle. `/permission` stays on the menu as a
-first-class local command: switches prefer the official `/permission <preset>`
-command; when that command is not exposed, the TUI falls back to the
-permissionPresets service's own official write path (real events, never
-fabricated), and when neither path exists it fails loudly instead of silently
-falling through. Exiting plan mode restores the pre-plan atoms first, then
-returns the durable identity to the preset you were on before plan mode.
+`dsh-TUI` implements no sandbox of its own — it uses the filesystem, shell, sandbox and approval policies of the active DSH profile. Permission presets come from the mounted DSH `permissionPresets` registry (a missing service falls back to the legacy three-row roster; a mounted but unusable one is marked unavailable and fails closed). Third-party presets join completion, the picker and the `Shift+Tab` cycle.
 
-See [Permissions and security boundary](docs/architecture.en.md#permissions-and-security-boundary)
-for details.
+Details: [Permissions and security boundary](docs/architecture.en.md#permissions-and-security-boundary).
 
 ## Acknowledgments
 
