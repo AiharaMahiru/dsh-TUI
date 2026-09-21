@@ -25,63 +25,20 @@
 
 ## Highlights
 
-- **Pixel whale pet**: one of three randomized startup intros; during the
-  welcome phase **click for a heart and wake it from a doze**, with idle fin
-  flutters, tail thumps, and sleep Z's (`/settings → whaleIdle` to disable);
-  the first task freezes it to a static frame — zero ongoing cost. The 22
-  hand-drawn frames are ported from
-  [dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale).
-- **Terminal-native interaction**: streaming Markdown, structured tool cards
-  (multi-line commands fold to the first line plus a count, `Ctrl+O` or a
-  click expands), `/` command and `@` file completion, `@path#L12-14`
-  line-range references, history search, message selection, and `/lang` zh/en
-  UI switching.
-- **Terminal images**: inline thumbnails via Kitty graphics or Sixel; click
-  for a centered large preview (zoom / pan / previous-next / open original);
-  pasted images are fitted to the profile's limits before entering the
-  attachment store; a same-size text fallback when graphics are unavailable.
-  Disable in `/settings → Terminal image previews`.
-- **Mermaid diagrams**: ```` ```mermaid ```` fences render as Unicode
-  box-drawing diagrams (flowchart / sequence / state / class / ER / pie /
-  mindmap / timeline / gitGraph), laid out in-process and taking shape while
-  streaming; `/settings → Mermaid diagrams` to disable.
-- **Timeline navigation**: a Grok-style turn rail covering **every turn,
-  folded ones included** — one click away; the right gutter offers timeline /
-  scrollbar / hidden modes, and the scrollbar track itself is a drag target.
-- **Visible agent state**: activity animation (`moon8` by default), a context
-  progress bar (hover the whole bar for the full legend; the readout changes
-  color under pressure), TPS gauge, cache hit rate, reasoning effort,
-  input/output tokens, and Git/session metadata; hovering a truncated tool
-  header or session title shows the full text (never while a selection is
-  active).
-- **One session-management screen**: `/resume`, `/home`, `/agentview`, `/bg`
-  and the `⌸` at the head of the prompt row all open the SAME screen — a
-  workspace rail on the left, that workspace's sessions on the right (live
-  state, filter, in-row ★ pin). A session another terminal holds refuses to
-  be entered; a parked one is one keypress away, and switching never
-  interrupts a running turn.
-- **Complete session workflow**: `/new` `/compact` `/export` `/btw`, model
-  hot-switching (fork continuation, history preserved), session fork,
-  double-`Esc` time rewind, `/vim` editing, mouse selection editing, and a
-  fullscreen draft editor (`Ctrl+Shift+E`). `/resume` only classifies a
-  fully-read log with confirmed no user messages as empty — image-only input,
-  incomplete reads, and parse failures are never cleaned up as empty
-  sessions.
-- **IDE selection channel**: with the VS Code extension, selecting code in
-  the editor shows a `⧉ N lines selected` badge under the prompt, and
-  submitting attaches the selected lines; manually launched sessions
-  (tmux/SSH) discover a local IDE through lock files; without an IDE
-  everything degrades silently. See [vscode.en.md](docs/vscode.en.md).
-- **Official DSH integrations**: agent presets, skills, MCP, goals, todos,
-  subagents, and questionnaires all run through existing DSH services and
-  registries; `/skills` lists discovered skills — dsh-TUI preinstalls no
-  general-purpose skills.
-- **Rich extensions**: native browser interaction, computer use, and many
-  more companion extensions.
-- **Designed for long sessions**: event-driven projection, differential
-  rendering, message virtualization, zero-allocation hot paths, and bounded
-  caches; long-session resume skips the splash and lands straight on the
-  newest message.
+- **Pixel whale pet** — three startup intros, click to wake; freezes after the first task.
+- **Terminal-native UI** — streaming Markdown, tool cards, `/` and `@` completion, `#L12-14` ranges, history search, zh/en UI.
+- **Images** — Kitty/Sixel thumbnails, centered preview with zoom and pan, paste-time fitting, text fallback.
+- **Mermaid diagrams** — ```` ```mermaid ```` fences drawn as Unicode diagrams.
+- **Timeline rail** — every turn clickable; timeline / scrollbar / hidden gutter.
+- **Live state** — activity animation, context bar, TPS, cache hit rate, effort, tokens, Git and session metadata.
+- **One session manager** — `/resume` `/home` `/agentview` `/bg` `⌸`.
+- **Session workflow** — `/new` `/compact` `/export` `/btw`, model hot-switch, fork, rewind, vim, fullscreen draft editor.
+- **IDE selection channel** — a VS Code selection lands in the prompt.
+- **DSH integrations** — presets, skills, MCP, goals, todos, subagents, questionnaires.
+- **Extensions** — browser interaction, computer use and more.
+- **Built for long sessions** — event-driven projection, virtualization, bounded caches.
+
+Keys and commands: [Interaction and commands](docs/interaction.en.md). Everything else: [documentation index](docs/README.md).
 
 ## Preview
 
@@ -173,31 +130,31 @@ source builds, and troubleshooting — including migration from the former
 | `dsh-tui safe` | Read-only diagnostics, plugin inventory and repair guidance; `safe --rescue` builds a clean rescue profile |
 | `dsh-tui version` · `dsh-tui help` | Launcher/profile versions and usage — both work even without a `dsh` install |
 
-Every other argument is forwarded verbatim to `dsh --profile dsh-tui`. Safe mode's exact boundary and gate list: [Getting started → Safe mode](docs/getting-started.en.md#safe-mode-dsh-tui-safe).
+Other arguments go to `dsh --profile dsh-tui`. Safe mode: [Getting started](docs/getting-started.en.md).
 
-**VS Code**: the integrated terminal, or the `dsh-tui-vscode` companion extension (multiple sessions, session history, specific-session resume, IDE selection channel) — [VS Code guide](docs/vscode.en.md). **Herdr**: run `dsh-tui` in a [Herdr](https://herdr.dev) pane with no setup; it reports `idle` / `working` / `blocked` (questionnaires and tool approvals count as `blocked`) through Herdr's local integration API, and stays inactive outside Herdr.
+**VS Code**: integrated terminal, or the `dsh-tui-vscode` extension — [VS Code guide](docs/vscode.en.md). **Herdr**: run `dsh-tui` in a [Herdr](https://herdr.dev) pane; `idle` / `working` / `blocked` are reported through its local integration API.
 
 ## Keybindings & Mouse
 
-`Enter` send · `Tab` complete `/` and `@` · `Ctrl+Enter` interrupt and send · `Alt+Up` recall the last message · `Esc` dismiss (double-`Esc` on an empty prompt = time rewind) · `Ctrl+O` expand details · `Ctrl+R` history search · `Ctrl+V` paste (images become `[Image #N]` attachments) · `Ctrl+Shift+E` fullscreen draft editor · `?` all shortcuts · `←` on an empty prompt backgrounds the session and opens the session manager.
+`Enter` send · `Tab` complete · `Ctrl+Enter` interrupt and send · `Alt+Up` recall the last message · `Esc` dismiss, double-`Esc` rewinds · `Ctrl+O` details · `Ctrl+R` history · `Ctrl+V` paste · `Ctrl+Shift+E` fullscreen draft editor · `?` shortcuts · `←` background the session.
 
 While the model is working: `Enter` steers, `Tab` queues a follow-up, `Ctrl+Enter` interrupts and sends.
 
-Mouse (fullscreen, the factory default): drag to select and **copy on release**, double/triple click for a word/line, click a tool card to fold it, click a timeline-rail tick to jump to that turn, click an `[Image #N]` for the centered preview.
+Mouse (fullscreen): drag to select and copy, double/triple click to select a word or line, click tool cards, timeline ticks and `[Image #N]` previews.
 
-Every key, the mouse and questionnaire tables, the image modal, macOS `⌘` support and remapping in `/settings → Shortcuts`: [Interaction and commands](docs/interaction.en.md).
+Full reference: [Interaction and commands](docs/interaction.en.md).
 
 ## Built-in Commands
 
-`/resume` (also `/home`, `/agentview`, `/bg`, or `⌸` at the head of the prompt) opens the one session-management screen: workspace rail, that workspace's sessions, live state, filter, ★ pins. `/model` switches by forking. Everyday companions: `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`.
+`/resume` · `/home` · `/agentview` · `/bg` · `⌸` open the same session manager: workspace rail, live state, filter, ★ pins. Also `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`.
 
-**Background sessions**: `/bg` (or `←` on an empty prompt) moves the current session to the background — it keeps running — and opens that screen; `Esc` goes back to it. They live inside this process (turns, tools and approvals work as usual) and stop when the TUI exits; the logs survive.
+**Background sessions**: `/bg` or `←` on an empty prompt; `Esc` returns. They run in this process and stop when the TUI exits (logs survive).
 
-Full command reference, arguments and registry commands: [Interaction and commands → Slash commands](docs/interaction.en.md#slash-commands).
+Full commands: [Interaction and commands](docs/interaction.en.md).
 
 ## Configuration & Extensions
 
-Agent presets (`standard` / `ptc` / `minimal` / `cordis`, plus the bundled `liangshen`), themes (built-in, `~/.dsh-tui/themes/*.json`, npm plugin themes), MCP servers and the whole environment-variable surface: [Configuration](docs/configuration.en.md) · [Themes](docs/themes.en.md).
+Agent presets, themes, MCP servers, environment variables: [Configuration](docs/configuration.en.md) · [Themes](docs/themes.en.md).
 
 ## How It Works
 
@@ -206,15 +163,15 @@ dsh profile → dsh-base → dsh-TUI Cordis patch → agent preset + DSH service
   → session/event → Channel projection → React components → Ink/Yoga renderer → terminal
 ```
 
-The TUI owns interaction and presentation only: the session log stays the source of truth, while model calls, tool execution, fork/resume, compaction and persistence stay in DSH services. Rendering is event-driven and virtualized at the layout level, so a long session costs O(visible window) per frame; the palette follows the terminal background (OSC 11).
+The TUI owns interaction and presentation; the session log is the source of truth, and DSH services own models, tools and persistence. Long sessions render in O(visible window).
 
 Runtime path, module boundaries, performance notes and persistence locations: [Architecture and limitations](docs/architecture.en.md).
 
 ## Known Limitations
 
 - Injected plugin context has no standalone display; it counts into the context segments.
-- `/model` switches by forking the session (DSH has no in-place model switch): history is preserved and the old session stays in `/resume`.
-- `Ctrl+V` reads the clipboard through platform tools; unsupported bitmap formats are rejected with a warning.
+- `/model` switches by forking the session; the old session stays in `/resume`.
+- `Ctrl+V` needs platform clipboard tools; unsupported bitmap formats are rejected.
 - A background session lives inside this process and stops when the TUI exits.
 - `/thinking` is not persisted; `/compact` is unavailable under the `minimal` preset; `/update` needs a `dsh --profile` launch and is refused while a turn is running.
 
@@ -239,9 +196,9 @@ changes also require the relevant regression scripts.
 
 ## Plugin Ecosystem
 
-Building a plugin? Start with the [admission & development guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) (seams, contracts, verification checklist), the [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template) and the [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) organization; `dsh-working-activity` is the reference implementation.
+Plugin development: [admission & development guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) · [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template) · [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem). Reference implementation: `dsh-working-activity`.
 
-Seam stability grading, the types-only `@deepseek-harness-tui/dsh-tui/api` entry and migration notes: [Plugin development](docs/plugins.en.md). The organization maintains the listing and admission rules only — it does not endorse or warrant community plugins.
+Seam grading and API notes: [Plugin development](docs/plugins.en.md). The organization maintains the listing only; it does not endorse community plugins.
 
 ## Documentation
 
@@ -282,7 +239,7 @@ The complete bilingual index is [`docs/README.md`](docs/README.md).
 
 > **Windows security warning:** the Windows profile defaults to `danger-full-access` with approval set to `never`, so tools have unrestricted access. Inspect and tighten the profile before starting next to sensitive credentials or in an untrusted repository.
 
-`dsh-TUI` implements no sandbox of its own — it uses the filesystem, shell, sandbox and approval policies of the active DSH profile. Permission presets come from the mounted DSH `permissionPresets` registry (a missing service falls back to the legacy three-row roster; a mounted but unusable one is marked unavailable and fails closed). Third-party presets join completion, the picker and the `Shift+Tab` cycle.
+No sandbox of its own: dsh-TUI uses the active DSH profile's filesystem, shell, sandbox and approval policies. Permission presets come from the DSH `permissionPresets` registry.
 
 Details: [Permissions and security boundary](docs/architecture.en.md#permissions-and-security-boundary).
 

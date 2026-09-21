@@ -23,18 +23,20 @@
 
 ## 功能亮点
 
-- **像素鲸鱼娘**：开屏随机三选一动画；欢迎期可**点击冒爱心、唤醒打盹的鲸鱼**，闲置摆鳍拍尾、入睡冒 Z（`/settings → whaleIdle` 可关）；开始第一个任务后永久定格静态帧，零持续开销。22 帧手绘原图移植自 [dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)。
-- **终端原生交互**：流式 Markdown、结构化工具卡（多行命令折叠为首行 + 计数，`Ctrl+O` 或点击展开）、`/` 命令与 `@` 文件补全、`@path#L12-14` 行区间引用、历史搜索、消息选择、`/lang` 中英界面切换。
-- **终端图片**：Kitty/Sixel 内嵌缩略图，点击打开大图预览（缩放 / 平移 / 多图切换 / 打开原图）；粘贴图片先按 profile 限额自动适配再入附件库；无图形能力时保留同尺寸文字回退。`/settings → 终端图片预览` 可关。
-- **Mermaid 图表**：回复中的 ```` ```mermaid ```` 代码块直接画成 Unicode 字符图（flowchart / sequence / state / class / ER / pie / mindmap / timeline / gitGraph），纯进程内布局，流式输出时逐步成形；`/settings → Mermaid 图表` 可关。
-- **时间轴导航**：Grok 式回合轨道覆盖全部回合（含折叠的），点击即达；右侧栏 timeline / 滚动条 / 隐藏三种模式，滚动条轨道按住即连续滚动。
-- **实时状态**：工作状态动画（默认 `moon8`）、上下文进度条（悬停整条出图例、读数按占用率变色）、TPS 仪表、缓存命中率、推理强度、输入/输出 token 与 Git/会话信息；悬停截断的工具卡或会话标题出完整浮层（拖选期间一律不弹）。
-- **三合一会话管理**：`/resume`、`/home`、`/agentview`、`/bg` 与输入框行首 `⌸` 打开**同一个界面**——左侧工作区栏、右侧会话列表（实时状态、筛选、行内 ★ 固定）；被其他终端占用的会话拒绝进入，本终端停放的会话一键切回，切换不中断正在跑的回合。
-- **完整会话工作流**：`/new` `/compact` `/export` `/btw`、模型热切换（fork 续聊、历史保留）、会话 fork、双击 Esc 时间回溯、`/vim` 编辑模式、鼠标选区编辑、全屏草稿编辑器（`Ctrl+Shift+E`）。`/resume` 只把完整读取且确认无用户消息的日志判为空会话，仅发图片、读取不完整或解析失败不会被误清。
-- **IDE 选区通道**：搭配 VS Code 扩展，编辑器选中代码后 prompt 下方实时显示 `⧉ N lines selected` 徽标，提交自动附加选中行；手动启动（tmux/SSH）经 lock 自动发现本机 IDE，无 IDE 静默降级。详见 [vscode.md](docs/vscode.md)。
-- **官方集成**：agent presets、技能、MCP、目标/待办、子代理、问卷全部走 DSH 既有服务与注册表；`/skills` 展示发现的技能，dsh-TUI 不预装通用技能。
-- **扩展丰富**：原生浏览器交互、computer use 等大量附属功能性扩展。
-- **为长会话设计**：事件驱动投影、增量渲染、消息虚拟化、零分配热路径与有界缓存；长会话恢复跳过开屏动画，直接落位到最新消息。
+- **像素鲸鱼娘** — 开屏三选一动画，点击唤醒；开始第一个任务后定格。
+- **终端原生界面** — 流式 Markdown、工具卡、`/` 与 `@` 补全、`#L12-14` 行区间、历史搜索、中英界面。
+- **图片** — Kitty/Sixel 缩略图，居中大图可缩放平移，粘贴前按限额适配，无图形时文字回退。
+- **Mermaid 图表** — ```` ```mermaid ```` 代码块画成 Unicode 字符图。
+- **时间轴** — 全部回合可点；右栏时间线 / 滚动条 / 隐藏。
+- **实时状态** — 工作动画、上下文条、TPS、缓存命中率、推理强度、token、Git 与会话信息。
+- **唯一的会话管理界面** — `/resume` `/home` `/agentview` `/bg` `⌸`。
+- **会话工作流** — `/new` `/compact` `/export` `/btw`、模型热切换、fork、回溯、vim、全屏草稿编辑器。
+- **IDE 选区通道** — VS Code 里选中的代码进 prompt。
+- **DSH 集成** — presets、技能、MCP、目标、待办、子代理、问卷。
+- **扩展** — 浏览器交互、computer use 等。
+- **为长会话设计** — 事件驱动投影、虚拟化、有界缓存。
+
+键位与命令：[交互与命令](docs/interaction.md)。其余见[文档索引](docs/README.md)。
 
 ## 界面预览
 
@@ -109,31 +111,31 @@ TUI 启动后会在后台检查新版本（不阻塞首帧）；有更新时输�
 | `dsh-tui safe` | 只读诊断、插件清单与修复指引；`safe --rescue` 创建干净的救援 profile |
 | `dsh-tui version` · `dsh-tui help` | 启动器与 profile 版本、用法——没装 dsh 时这两条也能用 |
 
-其余参数原样转发给 `dsh --profile dsh-tui`。安全模式的完整边界与门禁清单见[安装与快速开始](docs/getting-started.md)。
+其余参数转发给 `dsh --profile dsh-tui`。安全模式：[安装与快速开始](docs/getting-started.md)。
 
-**VS Code**：集成终端直接运行，或用 companion 扩展 `dsh-tui-vscode`（多会话、会话历史、指定会话恢复、IDE 选区通道）——见 [VS Code 使用指南](docs/vscode.md)。**Herdr**：在 [Herdr](https://herdr.dev) 窗格直接运行 `dsh-tui`，无需配置；它经 Herdr 本地集成 API 报告 `idle` / `working` / `blocked`（问卷与工具审批记为 `blocked`），Herdr 之外完全惰性。
+**VS Code**：集成终端，或 `dsh-tui-vscode` 扩展——见 [VS Code 使用指南](docs/vscode.md)。**Herdr**：在 [Herdr](https://herdr.dev) 窗格运行 `dsh-tui`，经其本地集成 API 报告 `idle` / `working` / `blocked`。
 
 ## 快捷键与鼠标
 
-`Enter` 发送 · `Tab` 补全 `/` 与 `@` · `Ctrl+Enter` 打断并发送 · `Alt+Up` 取回上一条消息 · `Esc` 逐层关闭（空输入双击 = 时间回溯）· `Ctrl+O` 展开详情 · `Ctrl+R` 搜历史 · `Ctrl+V` 粘贴（图片变 `[Image #N]` 附件）· `Ctrl+Shift+E` 全屏草稿编辑器 · `?` 全部快捷键 · 空输入按 `←` 转后台并打开会话管理界面。
+`Enter` 发送 · `Tab` 补全 · `Ctrl+Enter` 打断并发送 · `Alt+Up` 取回上一条 · `Esc` 逐层关闭，空输入双击回溯 · `Ctrl+O` 详情 · `Ctrl+R` 搜历史 · `Ctrl+V` 粘贴 · `Ctrl+Shift+E` 全屏草稿编辑器 · `?` 快捷键 · `←` 转后台。
 
 模型工作时：`Enter` 加塞、`Tab` 排队、`Ctrl+Enter` 打断并立即发送。
 
-鼠标（全屏为出厂默认）：拖选**松开即复制**、双击/三击选词选行、点工具卡折叠、点时间轴刻度跳回合、点 `[Image #N]` 开大图预览。
+鼠标（全屏）：拖选即复制、双击/三击选词选行、点工具卡、时间轴刻度与 `[Image #N]` 预览。
 
-全部键位、鼠标与问卷表、大图弹窗、macOS `⌘` 支持与 `/settings → Shortcuts` 重映射：见[交互与命令](docs/interaction.md)。
+完整参考：[交互与命令](docs/interaction.md)。
 
 ## 内置命令
 
-`/resume`（同 `/home`、`/agentview`、`/bg`，或输入框行首 `⌸`）打开唯一的会话管理界面：工作区栏、该工作区会话、实时状态、筛选、★ 固定。`/model` 切换 = fork 续聊。常用的还有 `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`。
+`/resume` · `/home` · `/agentview` · `/bg` · `⌸` 打开同一个会话管理界面：工作区栏、实时状态、筛选、★ 固定。另有 `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`。
 
-**后台会话**：`/bg`（或空输入按 `←`）把当前会话移入后台——继续跑——并打开该界面；按 `Esc` 回到它。后台会话跑在本进程内（回合、工具、审批照常），TUI 退出即停止，日志保留。
+**后台会话**：`/bg` 或空输入按 `←`；按 `Esc` 回到它。跑在本进程内，TUI 退出即停止（日志保留）。
 
-完整命令表、参数与注册表命令见[交互与命令](docs/interaction.md)。
+完整命令：[交互与命令](docs/interaction.md)。
 
 ## 配置与扩展
 
-Agent 预设（`standard` / `ptc` / `minimal` / `cordis`，外加自带的 `liangshen`）、主题（内置、`~/.dsh-tui/themes/*.json`、npm 插件主题）、MCP 服务器与全部环境变量：见[配置参考](docs/configuration.md)与[主题系统](docs/themes.md)。
+Agent 预设、主题、MCP 服务器、环境变量：[配置参考](docs/configuration.md) · [主题系统](docs/themes.md)。
 
 ## 工作原理
 
@@ -142,15 +144,15 @@ dsh profile → dsh-base → dsh-TUI Cordis patch → agent preset + DSH service
   → session/event → Channel projection → React components → Ink/Yoga renderer → terminal
 ```
 
-TUI 只负责交互与呈现：会话日志是唯一事实源，模型调用、工具执行、fork/恢复、压缩与持久化都归 DSH 服务。渲染由事件驱动并在布局层虚拟化，长会话单帧成本是 O（可见窗口）；调色板跟随终端背景（OSC 11）。
+TUI 只负责交互与呈现：会话日志是唯一事实源，模型、工具与持久化归 DSH 服务。长会话单帧成本 O（可见窗口）。
 
 运行链路、模块边界、性能要点与持久化位置见[架构与限制](docs/architecture.md)。
 
 ## 已知限制
 
 - 注入的插件上下文没有独立展示，计入上下文分段。
-- `/model` 靠 fork 会话切换（DSH 无原地换模型 API）：历史保留，旧会话留在 `/resume`。
-- `Ctrl+V` 依赖各平台剪贴板工具；不支持的位图格式带警告拒绝。
+- `/model` 靠 fork 切换会话；旧会话留在 `/resume`。
+- `Ctrl+V` 需要平台剪贴板工具；不支持的位图格式直接拒绝。
 - 后台会话活在本进程内，TUI 退出即停止。
 - `/thinking` 不持久化；`/compact` 在 `minimal` 预设下不可用；`/update` 需 `dsh --profile` 启动，回合运行中会被拒绝。
 
@@ -170,9 +172,9 @@ pnpm smoke
 
 ## 插件生态
 
-想做插件？先看[准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md)（接缝、契约、验证清单）、[plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template) 模板与 [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) 组织；参考实现是 `dsh-working-activity`。
+插件开发：[准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) · [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template) · [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem)。参考实现：`dsh-working-activity`。
 
-接缝稳定性分级、纯类型入口 `@deepseek-harness-tui/dsh-tui/api` 与迁移说明见[插件开发](docs/plugins.md)。生态组织只维护收录与准入规则，不背书社区插件的功能与安全。
+接缝分级与 API 说明：[插件开发](docs/plugins.md)。生态组织只维护收录，不背书社区插件。
 
 ## 文档索引
 
@@ -207,7 +209,7 @@ pnpm smoke
 
 > **Windows 安全警告：** Windows profile 默认 `danger-full-access`、approval 默认 `never`，工具访问不受限制。在敏感凭证或不可信仓库旁启动前，先检查并收紧 profile。
 
-`dsh-TUI` 不自带沙箱，用的是当前 DSH profile 的文件、Shell、sandbox 与 approval 策略。权限预设来自 DSH `permissionPresets` registry（服务缺失回退 legacy 三项名册；挂载但不可用则标 unavailable 并 fail closed），第三方预设自动进入补全、picker 与 `Shift+Tab` 循环。
+不自带沙箱：用当前 DSH profile 的文件、Shell、sandbox 与 approval 策略。权限预设来自 DSH `permissionPresets` registry。
 
 详见[权限边界](docs/architecture.md#权限与安全边界)。
 
