@@ -25,8 +25,8 @@ the `.en.md` suffix.
 
 ## 快速入口 / Quick Links
 
-- 中文项目首页：[README.md](../README.md)
-- English project page: [README_EN.md](../README_EN.md)
+- 中文项目首页：[README_ZH.md](../README_ZH.md)
+- English project page: [README.md](../README.md)
 - npm package: [`@deepseek-harness-tui/dsh-tui`](https://www.npmjs.com/package/@deepseek-harness-tui/dsh-tui)
 - DeepSeek Harness configuration catalog:
   [official reference](https://deepseek-harness.github.io/deepseek-harness/reference/config-catalog)

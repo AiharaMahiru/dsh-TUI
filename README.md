@@ -1,231 +1,567 @@
-
 <p align="center">
   <img src="docs/assets/logo.svg" alt="dsh-TUI - DeepSeek Harness terminal interface" width="560">
 </p>
-<p align="center">
-  <strong>简体中文</strong> | <a href="README_EN.md">English</a>
-</p>
 
+<p align="center">
+  <strong>English</strong> | <a href="README_ZH.md">简体中文</a>
+</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@deepseek-harness-tui/dsh-tui"><img alt="npm" src="https://img.shields.io/npm/v/@deepseek-harness-tui/dsh-tui?style=flat-square&color=4b6fff"></a>
   <a href="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square"></a>
   <img alt="Public beta" src="https://img.shields.io/badge/status-public%20beta-7da1de?style=flat-square">
-  <img alt="官方收录" src="https://img.shields.io/badge/DeepSeek%20Harness%20官方公众号-收录-brightgreen">
+  <a href="https://github.com/ccch1mneyyy/dsh-TUI/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/ccch1mneyyy/dsh-TUI?style=flat-square&color=4b6fff"></a>
+  <a href="https://www.npmjs.com/package/@deepseek-harness-tui/dsh-tui"><img alt="npm downloads" src="https://img.shields.io/npm/dm/@deepseek-harness-tui/dsh-tui?style=flat-square&color=4b6fff"></a>
 </p>
 
 # dsh-TUI
 
->一个面向 DeepSeek Harness 的交互式终端界面插件：提供像素鲸鱼顶栏、实时工作状态行、流式思考展示、双击 Esc 时间回溯、上下文进度条与 TPS 仪表。
->零核心改动，纯插件挂载。安装插件即可启用，卸载后不会留下核心补丁。
->
->An interactive terminal UI plugin for DeepSeek Harness: pixel-whale header, live work status, streaming thinking display, double-Esc time rewind, a context progress bar, and a TPS gauge.
->Zero core changes, pure plugin mounting. Install to enable; uninstall leaves no core patches.
+> An interactive terminal UI plugin for DeepSeek Harness: pixel-whale header,
+> live work status, streaming thinking display, double-Esc time rewind, a
+> context progress bar, and a TPS gauge.
+> Zero core changes, pure plugin mounting — install to enable; uninstall
+> leaves no core patches.
 
-## 🎉 官方收录
+## Highlights
 
-本插件被 **DeepSeek Harness 官方公众号** 推文收录，也被 [dshfind](https://dshfind.com/ccch1mneyyy/dsh-TUI) 插件目录与 [GitHub Trending](https://trendshift.io/repositories/146168) 收录，同时登上了Github Treding日榜第七
+- **Pixel whale pet**: one of three randomized startup intros; during the
+  welcome phase **click for a heart and wake it from a doze**, with idle fin
+  flutters, tail thumps, and sleep Z's (`/settings → whaleIdle` to disable);
+  the first task freezes it to a static frame — zero ongoing cost. The 22
+  hand-drawn frames are ported from
+  [dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale).
+- **Terminal-native interaction**: streaming Markdown, structured tool cards
+  (multi-line commands fold to the first line plus a count, `Ctrl+O` or a
+  click expands), `/` command and `@` file completion, `@path#L12-14`
+  line-range references, history search, message selection, and `/lang` zh/en
+  UI switching.
+- **Terminal images**: inline thumbnails via Kitty graphics or Sixel; click
+  for a centered large preview (zoom / pan / previous-next / open original);
+  pasted images are fitted to the profile's limits before entering the
+  attachment store; a same-size text fallback when graphics are unavailable.
+  Disable in `/settings → Terminal image previews`.
+- **Mermaid diagrams**: ```` ```mermaid ```` fences render as Unicode
+  box-drawing diagrams (flowchart / sequence / state / class / ER / pie /
+  mindmap / timeline / gitGraph), laid out in-process and taking shape while
+  streaming; `/settings → Mermaid diagrams` to disable.
+- **Timeline navigation**: a Grok-style turn rail covering **every turn,
+  folded ones included** — one click away; the right gutter offers timeline /
+  scrollbar / hidden modes, and the scrollbar track itself is a drag target.
+- **Visible agent state**: activity animation (`moon8` by default), a context
+  progress bar (hover the whole bar for the full legend; the readout changes
+  color under pressure), TPS gauge, cache hit rate, reasoning effort,
+  input/output tokens, and Git/session metadata; hovering a truncated tool
+  header or session title shows the full text (never while a selection is
+  active).
+- **One session-management screen**: `/resume`, `/home`, `/agentview`, `/bg`
+  and the `⌸` at the head of the prompt row all open the SAME screen — a
+  workspace rail on the left, that workspace's sessions on the right (live
+  state, filter, in-row ★ pin). A session another terminal holds refuses to
+  be entered; a parked one is one keypress away, and switching never
+  interrupts a running turn.
+- **Complete session workflow**: `/new` `/compact` `/export` `/btw`, model
+  hot-switching (fork continuation, history preserved), session fork,
+  double-`Esc` time rewind, `/vim` editing, mouse selection editing, and a
+  fullscreen draft editor (`Ctrl+Shift+E`). `/resume` only classifies a
+  fully-read log with confirmed no user messages as empty — image-only input,
+  incomplete reads, and parse failures are never cleaned up as empty
+  sessions.
+- **IDE selection channel**: with the VS Code extension, selecting code in
+  the editor shows a `⧉ N lines selected` badge under the prompt, and
+  submitting attaches the selected lines; manually launched sessions
+  (tmux/SSH) discover a local IDE through lock files; without an IDE
+  everything degrades silently. See [vscode.en.md](docs/vscode.en.md).
+- **Official DSH integrations**: agent presets, skills, MCP, goals, todos,
+  subagents, and questionnaires all run through existing DSH services and
+  registries; `/skills` lists discovered skills — dsh-TUI preinstalls no
+  general-purpose skills.
+- **Rich extensions**: native browser interaction, computer use, and many
+  more companion extensions.
+- **Designed for long sessions**: event-driven projection, differential
+  rendering, message virtualization, zero-allocation hot paths, and bounded
+  caches; long-session resume skips the splash and lands straight on the
+  newest message.
+
+## Preview
 
 <div align="center">
   <table>
     <tr>
       <td align="center" valign="middle" width="50%">
-        <img src="screenshots/wechat-official.png" alt="DeepSeek Harness 官方公众号推文收录 dsh-TUI" width="480">
+        <img src="screenshots/splash.png" alt="dsh-TUI conversation with the pixel-whale header" width="480">
         <br>
-        <strong>DeepSeek Harness 官方公众号推文收录</strong>
+        <strong>Conversation with the pixel-whale header</strong>
       </td>
       <td align="center" valign="middle" width="50%">
-        <a href="https://dshfind.com/ccch1mneyyy/dsh-TUI"><img src="https://dshfind.com/api/card/ccch1mneyyy/dsh-TUI?lang=zh" alt="dsh-TUI on dshfind" width="420"></a>
+        <img src="screenshots/ide-selection-badge.png" alt="IDE selection badge: live line count under the prompt" width="480">
         <br>
-        <strong>dshfind 插件目录收录</strong>
+        <strong>Live IDE selection badge</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+## Featured & Listed
+
+Featured by the **DeepSeek Harness official WeChat account**, listed in the
+[dshfind](https://dshfind.com/en/plugins/ccch1mneyyy/dsh-TUI) plugin
+directory, and ranked **#7 on [GitHub Trending](https://trendshift.io/repositories/146168)
+daily** (TypeScript).
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" valign="middle" width="50%">
+        <img src="screenshots/wechat-official.png" alt="dsh-TUI featured by the DeepSeek Harness official WeChat account" width="480">
+        <br>
+        <strong>Featured by the official WeChat account</strong>
+      </td>
+      <td align="center" valign="middle" width="50%">
+        <a href="https://dshfind.com/en/plugins/ccch1mneyyy/dsh-TUI"><img src="https://dshfind.com/api/card/ccch1mneyyy/dsh-TUI?lang=en" alt="dsh-TUI on dshfind" width="420"></a>
+        <br>
+        <strong>Listed in the dshfind directory</strong>
         <br><br>
-        <a href="https://trendshift.io/repositories/146168" title="GitHub Trending 日榜 #7 · TypeScript 口径"><img alt="Trendshift" src="https://trendshift.io/api/badge/trendshift/repositories/146168/daily?language=TypeScript"></a>
-         <br>
-        <strong>dshfind Github Treding榜第七 </strong>
-      </td>
-    </tr>
-  </table>
-</div>
-
-## 核心能力
-
-Windows Terminal 支持 Sixel 时，全屏会话记录可直接显示内嵌缩略图，点击后打开大图预览；非全屏 inline 模式仍保留文字回退。
-Sixel 使用最多 256 色的自适应调色板，透明像素与背景合成；Worker 缓存量化结果，滚动时仅编码可见部分，移出视野或被浮层覆盖时擦除旧图。
-附件读取与解码最多两路并发；最后一个使用者离开后取消读取，未启动的解码不再执行。多图缓存、排队任务与单帧传输均有容量上限，超限时保留文字回退。
-自动探测优先 Kitty，其次使用 DA1 声明的 Sixel 能力。`DSH_TUI_IMAGE_PROTOCOL=auto|kitty|sixel|none` 可覆盖协议选择；
-`DSH_TUI_DISABLE_TERMINAL_IMAGES=1`、无障碍模式、非 TTY 输出以及 tmux/screen 仍禁用图形。
-缺少图片依赖或编码失败时保留文字回退；强制协议也不会启用 inline Sixel。
-浅色主题的面板和图片预览默认使用白底，图片预览边框使用中性色。
-大图预览以对话区约 95% 宽高为预算，最长边可达 2048 像素，仍限制总像素量和后台开销；缩略图大小不变。
-预览支持适应窗口、100% 原像素与 200%/400%/800% 放大，拖动、滚轮或方向按钮平移；100% 需终端报告字符格像素尺寸。
-底部「打开原图」链接直接调用系统看图程序，打开未经重编码的原始附件，包括从历史会话恢复的图片。
-大图弹窗用 `←`/`→` 或底部 `‹`/`›` 切换上一张、下一张，显示当前张数，首尾不循环；切图回到适应窗口。
-
-  - **终端交互**：低资源占用，长会话稳定可靠；多种主题切换，样式美观，实时显示工作状态、TPS、缓存命中率等
-    推理等级、输入/输出 token 与 Git/会话信息；终端卡多行命令可经 `/settings` 折叠为首行 + 计数提示（Ctrl+O 或点击卡片展开）；全屏模式下悬停在截断的工具卡标题或会话标题上约 600ms，浮层显示完整内容，拖选文本期间浮层一律不出现（避免覆盖待复制的单元格）。全屏模式右侧栏提供 timeline / 滚动条 / 隐藏三种模式；滚动条模式下轨道本身即拖拽目标——未修饰左键按住拖动可按指针所在轨道位置连续滚动（轨道点击定位的直接延伸），`Shift`/`Alt`/`Ctrl`+拖动仍为文字选择。
-    用户附图及助手/工具结果中的持久图片块会直接显示在会话记录中；Kitty graphics 或 Sixel 可用时显示等比缩略图，否则保留同尺寸文字回退。全屏下点击输入框 `[Image #N]` 或 transcript 缩略图在对话区域居中打开大图预览，卡片外的对话文字变暗，不遮挡输入栏（Esc/点击外部关闭），标题为 `Image #N — 格式 · 尺寸 · 体积 · 文件名`，本会话暂存的图片在卡片底行显示来源路径；Finder 复制的图片文件粘贴时直接入附件库为 `[Image #N]`，交给附件库之前先按 profile 的图片限额适配：超过单边像素/总像素上限的图片等比缩放到上限内；profile 不接受该格式时按可接受格式重编码（有透明通道时优先保留透明，只能转 JPEG 时透明区域填白）；需要改动字节的动图（多帧）明确拒绝，而不是把它的帧悄悄丢掉。适配过的图片会在粘贴提示里说明最终入库的尺寸与格式（提示取自附件库的回报，因此与预览卡一致；适配需可选依赖 sharp，且只覆盖「交给附件库之前」这一步——附件库自身的归一化不在本功能范围内）；输入框里的 `[Image #N]` 是一个整体，光标整体跳过、删除整体生效，光标落在其上时整块反显并自动打开预览、离开时关闭。Vim 的 `x`/`X`/`d…` 同样整张删除，`u` 同时恢复文字与附件；撤销仅限当前草稿。
-    终端图片预览默认开启，可在 `/settings → 终端图片预览` 或配置 `terminalImages: false` 中关闭，使用 `/restart` 后生效。已保存的 `/settings` 选择优先于 Cordis 配置；若曾保存为开启，请在 `/settings` 中关闭后再 `/restart`。关闭时保留文字信息并跳过预览解码，不影响向模型发送图片；`DSH_TUI_DISABLE_TERMINAL_IMAGES=1` 始终强制关闭预览。
-    回复中的 ```` ```mermaid ```` 代码块直接画成 Unicode 字符图（flowchart / sequence / state / class / ER / pie / mindmap / timeline / gitGraph），纯进程内布局，不依赖浏览器或图片协议，流式输出时随内容逐步成形；比终端宽或类型不支持的图保留源码并注明所需列数。默认开启，`/settings → Mermaid 图表` 或配置 `mermaidDiagrams: false` 关闭，立即生效。
-  - **功能全面**：`/resume`、`/home`、`/agentview`、`/bg` 与输入框行首 `⌸` 打开**同一个会话管理界面**——左侧工作区栏（持久登记：编辑 / 在此新建 / 重命名 / 从列表移除），右侧该工作区的会话列表（实时状态、筛选、行内 ★ 固定，持久化到 `~/.dsh-tui`）；被其他 TUI 终端占用的会话照常列出但拒绝进入，本终端停放中的会话可随时切回（切换不中断正在跑的回合）；未登记目录下的会话有兜底分组，不会因"没有登记"而消失、`/new`、`/compact`、`/export`、`/btw`，模型热切换（新会话默认推理强度可在 /settings → 默认推理强度 预设），原生subagent，会话fork，自动更新，输入框 `/vim` vim 编辑模式、鼠标选区编辑（拖选高亮、Shift+click 扩展、双击选词、Ctrl+C 复制选区）与全屏草稿编辑（`Ctrl+Shift+E` 或输入行 `⛶` 按钮：行号 + 当前行高亮、Enter 换行、Ctrl+Enter 发送、滚轮滚动、点击/拖选，长草稿独占整屏；`/settings` 可关）；可在vs code中[以vscode插件形式启动](docs/vscode.md)，已上架 VS Code Marketplace。
-    `/resume` 只将完整读取并确认没有用户消息的日志判为空会话；仅发图片、读取不完整或解析失败的会话不会被归入空会话清理。
-  - **IDE 选区通道**：搭配 VS Code 扩展启动时，编辑器选中代码后 prompt 下方实时显示 `⧉ N lines selected` 徽标，提交消息自动附加选中行内容（transcript 有「⧉ Selected N lines」指示行）；手动启动（tmux/SSH）通过 lock 自动发现本机 IDE，无 IDE 时静默降级零影响。详见 [vscode.md](docs/vscode.md)。
-  - **扩展丰富**：原生浏览器交互，compter use等大量附属功能性扩展
-  - **技能归 DSH 管理**：`/skills` 展示当前 profile、用户与项目发现的技能；dsh-TUI 不预装通用技能。
-    技能目录暂时不完整时，保留最后一次完整观测的技能菜单与命令注册，并按 800/1600/3200ms 最多重试三次；耗尽后等待 DSH 的 `skills/change` 通知或显式刷新，不持续轮询。只有完整观测才能移除已消失的技能，包括完整空目录。
-  - **工作状态动画**：默认使用 `moon8`；读取旧版本地配置中的 `claude` 值时自动映射为 `moon8`，选择器只显示当前预设。
-  - **像素鲸鱼娘**：开屏随机三选一开场动画；欢迎期（开始第一个任务前）可**点击冒爱心并唤醒睡着的鲸鱼**，闲置时摆鱼鳍、拍尾巴、入睡冒 Z（`/settings → whaleIdle` 可关）。**开始第一个任务后永久定格为静态标准帧**，零持续开销。鲸鱼娘的 22 帧手绘原图与闲置行为移植自 [dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)（作者 [@lhh010](https://github.com/lhh010)），特此致谢。
-
-
-
-## 界面预览
-
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" valign="middle" width="50%">
-        <img src="screenshots/splash.png" alt="首屏：像素鲸鱼顶栏" width="480">
+        <a href="https://trendshift.io/repositories/146168" title="GitHub Trending Daily #7 · TypeScript"><img alt="Trendshift" src="https://trendshift.io/api/badge/trendshift/repositories/146168/daily?language=TypeScript"></a>
         <br>
-        <strong>首屏：像素鲸鱼顶栏</strong>
+        <strong>GitHub Trending Daily #7</strong>
       </td>
     </tr>
   </table>
 </div>
 
+## Quick Start
 
-## 快速开始
-
-前置条件：安装[Nodejs](https://nodejs.org/zh-cn)与[deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)，注册`DEEPSEEK_API_KEY`。
-
-安装命令：
+Prerequisites: [Node.js](https://nodejs.org/en) and
+[deepseek-harness](https://github.com/deepseek-ai/deepseek-harness), with
+`DEEPSEEK_API_KEY` configured.
 
 ```sh
+# Install the CLI and this plugin globally (ships the dsh-tui command)
 npm install -g @deepseek-ai/dsh @deepseek-harness-tui/dsh-tui
-```
 
-启动命令：
-
-```bash
-# 完整命令
+# Start (first run auto-initializes the profile; needs pnpm)
 dsh-tui
-# 如果你不想按键盘七次
+# Both `dsh-tui` and the short `dst` alias start the same TUI.
 dst
 ```
 
-如果你想手动安装，可以使用仓库根目录的 `install.sh`：
+Manual alternative: `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`
+(the repository's `sh install.sh` wraps this step and checks the required
+commands); afterwards `dsh-tui` and `dsh --profile dsh-tui` are equivalent.
 
-```sh
-sh install.sh
-# 或：dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui
-# 之后 dsh-tui 与 dsh --profile dsh-tui 等价
+> **New-user note**: pnpm ≥11 blocks dependencies with install scripts by
+> default (`ERR_PNPM_IGNORED_BUILDS`), and updates skip foreign-platform
+> `@img/sharp-*` native packages (saving about 200MB of downloads) —
+> `/update` and `dsh-tui update` write both configurations automatically, no
+> manual step needed. Details:
+> [Getting started](docs/getting-started.en.md#pnpm-install-script-blocks-and-foreign-platform-natives).
+
+The TUI checks for newer versions in the background after startup (never
+blocking the first frame); type `/update` for a one-shot upgrade that
+restarts automatically and resumes the current session. See
+[Getting started](docs/getting-started.en.md) for the profile lifecycle,
+source builds, and troubleshooting — including migration from the former
+`dsh-cc-tui` package.
+
+### CLI subcommands
+
+`dsh-tui help` (or `dst help`) prints the full usage; the `dst` alias accepts
+the same commands:
+
+| Command | Purpose |
+| --- | --- |
+| `dsh-tui update` | Update the profile to the latest release and align the launcher (same install logic as the in-TUI `/update`, without restarting into the TUI) |
+| `dsh-tui doctor` | Pre-flight environment checks: dsh/pnpm, profile install and version alignment, whether the API key is set (state only, never the value), config file presence; complements the in-TUI `/doctor` session diagnostics |
+| `dsh-tui safe` | Safe mode: read-only diagnostics, inventory, repair guidance (`safe --rescue` also creates/verifies the clean rescue profile) |
+| `dsh-tui version` | Show the launcher and profile versions (`--version`/`-v` are equivalent) |
+| `dsh-tui help` | Show usage (`--help`/`-h` are equivalent) |
+
+`help`/`version` work even when dsh is missing or the profile is not
+initialized; every other argument is forwarded verbatim to
+`dsh --profile dsh-tui`.
+
+### Safe mode (`dsh-tui safe`)
+
+When dsh exits unexpectedly, safe mode offers **read-only** environment
+diagnostics, a profile plugin inventory, and repair guidance: interactive
+terminals get a prompt after a non-zero dsh exit, or run `dsh-tui safe`
+manually; the rescue profile's cleanliness is proven check by check and the
+rescue refuses to start when it cannot be (fail-closed) — entries are matched
+by name and shape before any rebuild, so your files are never silently
+deleted. Full boundary and gate list:
+[Safe mode](docs/getting-started.en.md#safe-mode-dsh-tui-safe).
+
+### Running in VS Code / Herdr
+
+- **VS Code**: run directly in the integrated terminal, or use the
+  `dsh-tui-vscode` companion extension on the Marketplace (real terminal
+  sessions, session history, specific-session resume, IDE selection
+  channel). See [Running dsh-TUI in VS Code](docs/vscode.en.md).
+- **Herdr**: run `dsh-tui` directly in a [Herdr](https://herdr.dev) pane with
+  no extra setup; dsh-TUI reports `idle` / `working` / `blocked` through
+  Herdr's local integration API (questionnaires and tool approvals count as
+  `blocked`), and stays completely inactive outside Herdr.
+
+## Keybindings & Mouse
+
+| Key | Action |
+| --- | --- |
+| `Enter` | Idle = send (`Shift+Enter` for a newline, or `Ctrl+J` when the terminal cannot report modified Enter; `Option+Enter` is the fallback on macOS Terminal.app, issue #110); **while the model is working = steer** (inject a next-step boundary without interrupting); executes the selected item when a command menu is open |
+| `Ctrl+Enter` (⌘Enter) | **Interrupt the current turn and send immediately** (interrupt) |
+| `Alt+Up` | Pull the last unhandled message back into the input for editing (without interrupting the turn) |
+| `PgUp` / `PgDn` | Page the fullscreen transcript (one viewport minus one row; Help and paging overlays keep them and page their own lists; the question panel leaves them for the transcript); inline mode leaves them to the terminal's native scrollback |
+| `Tab` | Complete `/` commands or `@` files (keep drilling into directories); **while the model is working = follow-up** (queued after the current turn) |
+| `Ctrl+C` | Interrupt the current turn; press again while the interrupt is still settling to force-exit; press twice while idle to exit; **with an active mouse selection in the prompt, copies it to the clipboard and keeps it** |
+| `Esc` | Close an open image preview; close the command/file menu; **with an active selection in the prompt: only clears the selection**; double-press while idle clears the input; **double-press on empty input = time rewind** |
+| `←` (empty input) | **Background this session and open the agent view** (with text, ← moves the caret as usual) |
+| `Ctrl+O` | Expand/collapse details (full thinking text, tool arguments and output) |
+| `Ctrl+Shift+E` | Expand the fullscreen draft editor (Enter = newline, `Ctrl+Enter` = send, `Esc` = collapse keeping the draft; line numbers, wheel scrolling, click/drag selection) |
+| `Ctrl+R` | History search |
+| `/` | In-session full-text search (`n`/`N` to jump) |
+| `Ctrl+V` / `Alt+V` | Paste text or files from the file manager; images show as `[Image #N]` and are sent as durable attachments. Use `Alt+V` when the terminal intercepts `Ctrl+V` |
+| `Ctrl+G` | Edit the current input with `$VISUAL`/`$EDITOR` (e.g. nvim); content is filled back in on save and exit |
+| `/vim` | Toggle vim editing for the prompt (session-scoped): `Esc` switches to NORMAL (`h/l/j/k`, `0/^/$`, `w/b`, `x/X`, `dd`/`d$`/`d0`/`dw`, `u` undo), `i/a/o` back to INSERT |
+| `?` | Keybinding menu (responds only when the input is empty) |
+| `Shift+↑` | Message selection mode (`Enter` expands a single message) |
+| `Ctrl+P` | Toggle the startup loaded-context panel while it is on screen (the old pin shortcut inside `/resume` is gone; pin a session by clicking its row's ★) |
+| `Home` / `End`, `Ctrl+A` / `Ctrl+E` | `Ctrl+A` opens the subagent dashboard (in-editor `Mod+A` still moves to line start); `Ctrl+E` is dual-purpose: line end in the input, expand/collapse hidden older messages during transcription |
+| `Ctrl+←` / `Ctrl+→` (⌘←/→) | Jump by word |
+| `←` / `→` (image modal) | Previous / next image; caret peeks retain prompt editing |
+| `Ctrl+U` / `Ctrl+K` | Delete before the cursor (to line start) / after the cursor (to line end) |
+| `Ctrl+W` | Delete the previous word |
+
+**Three delivery modes while the model is working**: `Enter` = steer (inject a next-step boundary, no interruption) · `Tab` = follow-up (queued after the current turn) · `Ctrl+Enter` = interrupt (break in and send immediately).
+
+**Custom keybindings**: the action shortcuts above (paste, history search, external editor, transcript expand, trajectory, subagent dashboard, loaded-context panel, show-all, redraw, todo fold) are remappable in `/settings` → `dsh-tui` → `Shortcuts`: enter combos like `alt+v` or `ctrl+shift+v`, comma-separate several, leave blank to restore the default; saves apply live with no restart. Combos that clash with the fixed editing keys (`Ctrl+A/E/U/K/W`, `Ctrl+←/→`) or with another action are rejected. Deployments can also pin them statically via `shortcuts.<action>` in cordis.yml (the settings user layer wins).
+
+**macOS modifier keys**: the `Ctrl+<key>` bindings above also work with `⌘<key>`
+on macOS (e.g. `⌘V` paste, `⌘O` expand details, `⌘Enter` send immediately);
+only `Ctrl+C` / `Ctrl+D` (interrupt/exit) stay on Ctrl, to avoid clashing
+with muscle memory for macOS system-level `⌘C` copy and similar. `⌘` requires
+terminal support for the extended keyboard protocol (iTerm2 / kitty / WezTerm /
+ghostty / tmux); macOS's built-in Terminal.app consumes `⌘` shortcuts itself,
+so keep using `Ctrl`.
+
+**Mouse** (fullscreen is the factory default since 0.9.0; set `fullscreen: false` to restore the inline main screen; updating from an older version clears a previously saved inline choice once — you can still pick inline again afterwards):
+
+| Action | Function |
+| --- | --- |
+| Drag to select | In-app text selection, **copied on release** (OSC 52 with native `wl-copy`/`xclip`/`xsel` fallback; `load-buffer -w` inside tmux); the selection is cleared after copying and a "Copied N characters" notice pops up |
+| Double / triple click | Select word / line, copied on selection just the same |
+| Drag inside the prompt input | Build an in-input selection (rendered highlight): `Backspace`/`Delete` delete it, typing replaces it, `←/→` collapse it to the corresponding edge, `Esc` only clears it; a folded paste block keeps the selection on the clicked side |
+| `Shift+click` in the prompt input | Extend the selection from its start edge (or the caret) to the clicked position |
+| Double-click a word in the prompt input | Select the whole word (paths and punctuation runs select as one; detected in the component, 500 ms / 1 cell) |
+| `Ctrl+C` with a prompt selection | Copy the selection to the clipboard (OSC 52 + native fallback) and keep it for editing |
+| Scroll wheel | Only with fullscreen mouse tracking: scroll Help while it is open, otherwise scroll messages (±3 lines per notch); default inline mode does not deliver wheel events to the TUI |
+| Click a timeline-rail tick | Jump to that turn — the rail covers every turn (folded ones included); a folded tick reveals its turn first, then scrolls it into place |
+| `Esc` | Cancel an in-progress drag selection (no copy) |
+| Single-click a message line | Expand/collapse that line |
+| Click a staged `[Image #N]` token / a transcript thumbnail | Open the centered image preview (metadata fallback without Kitty/Sixel graphics); click outside the preview to close it |
+| Click "load earlier messages" / "ctrl+e show previous N" | Load earlier messages / expand all |
+| Click the StickyHeader / "↓ N new messages" | Jump back to the pinned message / scroll to the bottom |
+| Click a hyperlink | Open it in your browser |
+| Keyboard selection extension | With a selection active, `Shift+←/→/↑/↓/Home/End` extends or shrinks it (wrapping across lines) |
+
+**Questionnaires** (when the model fires `ask_user_question`):
+
+| Key | Action |
+| --- | --- |
+| `↑/↓` | Choose an option |
+| `Space` | Toggle multi-select options |
+| `Tab` | Switch to a custom answer (type directly without picking an option) |
+| `Enter` | Submit the current selection |
+| `Esc` (from question 2 onward) | Return to the previous question and keep the current draft |
+| `Esc` (from question 1) / `Ctrl+C` | Cancel the whole question batch (the model receives ASK_CANCELLED and can continue the conversation) |
+| `Ctrl+K` | Fold/unfold the questionnaire panel (the ask keeps waiting; while folded, `Esc`/`Ctrl+C` expand first) |
+
+## Built-in Commands & Agent View
+
+**Built-in commands** (routed through the official DSH pipeline):
+
+| Group | Commands |
+| --- | --- |
+| Session | `/new` new session · `/resume`, `/home`, `/agentview` open the one session-management screen (workspace rail + that workspace's sessions, live state, filter, in-row ★ pins) · `/bg` (alias `/background`) background this session and open that screen · `/rename` rename session · `/recap` session recap (apply the suggested title in one key; `/settings` can enable an auto-summary on session open — on by default: a divider + `Recap:` line appears at the bottom of the transcript when resuming, and bows out once you send a new message) · `/workspace resume\|rename\|open` manage workspaces · `/clear` clear screen · `/compact` compact · `/export` export Markdown · `/trace` trace timeline (or `Ctrl+T`) · `/rewind` rewind picker (same as double-`Esc` on empty input) · `/tree` session family tree (every fork branch stitched together; hover previews a node, click opens a rewind/fork-here/adopt-branch menu) · `/fork` copy the current session into a resumable twin (the original is untouched) · `/btw <question>` side question (never interrupts the main turn, writes no history) |
+| Status | `/context` loaded-context details · `/status` session info · `/cost` token usage · `/doctor` environment self-check · `/config` configuration sources · `/init` create AGENTS.md · `/settings` settings panel (namespace read/edit) |
+| Model | `/model` two-level picker (a pinned **Recently used** group first — the last 10 switched models, persisted at `~/.dsh-tui/model-recents.json` — then provider groups; Enter drills into a group's models; a single provider with no recents skips straight to the list; **switching = fork continuation, history preserved**) · `/effort` reasoning effort (slider / `status` / `<id>`; the default level new sessions start on is set in `/settings` → Default reasoning effort; an unavailable requested tier falls back to the nearest lower one with a loud notice) · `/preset` agent preset (**cannot switch once the session has started** — blank-only) · `/thinking` thinking display · `/tokens` token details · `/activity` working animation (`frames <name>` / `status`) · `/theme` theme picker · `/color` (bare opens the palette picker; `<name>` sets directly; `status`/`reset`) session accent color (input border + session-name chip at the top-right, per-session; chip off by default, enable in `/settings`) · `/lang` zh/en UI switch (also selectable in `/settings`) |
+| Accounts/Policy | `/provider` manage model providers — add a provider, or edit an existing one via a menu (API key · model list · delete the provider; custom endpoints also get base URL · wire protocol; a targeted edit patches only that field, the rest of the profile survives untouched; the model list pre-checks what you already enabled; only user-layer providers are editable) (includes the bundled dsh-auth **subscription OAuth sign-in** branch — ChatGPT / Claude / Grok, no API key; same source as `/auth status\|login\|logout`) · `/login` credential & account status · `/logout` logout notes · `/permission` dynamic preset/status notes · `/add-dir` file-policy scope · `/hooks` · `/mcp` |
+| Skills | `/skills` lists skills discovered by DSH; user-invocable skills join the `/` menu as `/name` |
+| Other | `/agents` subagent list · `/plugins check <path>` plugin diagnostics · `/update` auto-update and restart · `/vim` vim editing mode toggle · `/terminal-setup` · `/connect` · `/help` · `/exit` (aliases `/quit` `/q`) |
+| Registry | `/plan` `/goal` `/feedback` `/permission` (DSH command-registry plugins, merged into the `/` menu automatically with the plugin) |
+
+> Unknown commands are sent to the model as ordinary messages (e.g. in a composition where `/permission` is not mounted).
+
+**Agent view** (`/agentview`):
+
+One full-screen surface lists every session in this process: the attached conversation, background sessions dispatched here, and stopped TUI sessions persisted on disk. The header shows `model · directory` and state counts (awaiting input · working · completed); rows are grouped by state (needs input > working > failed > completed > idle > stopped), and working rows animate their glyph. Each row includes a one-line activity summary derived from the session's own output (no extra model calls); a row waiting on input shows the question it is blocked on. **Only sessions this TUI dispatched, backgrounded, or attached to from the view are listed** — the ordinary `/resume` history and sessions created by other front doors (e.g. web) never appear.
+
+| Key | Action |
+| --- | --- |
+| `↑/↓`, `PgUp/PgDn` | Move between rows |
+| `Enter` / `→` | Attach to the selected session (with input text: dispatch it) |
+| `Shift+Enter` | Dispatch and attach immediately |
+| `Space` | Toggle the peek panel (when the input is empty); type a reply inside and `Enter` to send |
+| `Ctrl+X` | Stop a background session; press again within 2s to delete it (log removed) |
+| `Ctrl+R` | Rename the selected session |
+| `Esc` | Close peek → clear input → exit; **when opened via ← `/bg`, the final Esc returns to the backgrounded session** |
+| `Ctrl+C` | Clear input; press again to exit |
+| `?` | Show all shortcuts |
+
+- Type a task in the input at the bottom and press `Enter` to dispatch a **background session**: it runs independently inside this process (turns, tools, approvals all work) without you watching it.
+- **Press `←` on an empty prompt** to jump straight into the view: the attached session moves to the background — it keeps running — the terminal lands on a fresh session, and the view opens (same as `/bg`), with a "Your conversation moved to the background — Enter opens it · Esc returns to it · Ctrl+C twice quits" notice on top. The prompt footer keeps a live "← N agents" count whenever background sessions are waiting on you.
+- A background session that needs approval shows as **needs input**; the approval panel pops up right inside the view and is answered there (labelled with its session).
+- `/bg` (alias `/background`) moves the attached session to the background — it keeps running — switches the terminal to a fresh session, and opens the view. `Enter` on any row switches back.
+- Peek and reply work live for running sessions; a stopped session needs an `Enter` attach before you can talk to it.
+- **Background sessions live inside this process**: they stop when the TUI exits (logs survive; `/resume` or `Enter` in the view brings them back). There is no supervisor process.
+
+## Configuration & Extensions
+
+- **Agent presets**: four official agent modes (`standard` / `ptc` / `minimal` / `cordis`)
+  plus the TUI-bundled Liangshen mode (`liangshen`),
+  switched with `/preset`; sessions that already have a conversation cannot switch, while
+  blank sessions take effect immediately. The default preset persists in
+  `~/.dsh-tui/agent-preset.json`; `/model` selections persist in `~/.dsh-tui/model.json`.
+  Under the `en` UI language the `/preset` picker shows localized English names
+  and descriptions for the built-in presets.
+  See [Configuration](docs/configuration.en.md#agent-presets).
+- **Themes**: the `/theme` picker (`auto` follows the system/terminal background,
+  built-in `light` / `dark` / `dark-ansi`) accepts static themes from
+  `~/.dsh-tui/themes/<name>.json` and runtime themes registered by npm plugins through
+  `ctx.tuiThemes` — selecting one hot-swaps and persists it; precedence is
+  `DSH_TUI_THEME` env var > persisted selection > OSC 11 terminal-background auto-detection.
+  See [Themes](docs/themes.en.md).
+- **MCP**: servers are mounted via `@deepseek-ai/dsh-mcp-client`, with tools registered as
+  `mcp__<server>__<tool>`; `/mcp` shows connection status.
+  See [Configuration](docs/configuration.en.md#mcp).
+
+## How It Works & Technical Notes
+
+```text
+dsh profile
+  -> dsh-base
+  -> dsh-TUI Cordis patch
+  -> agent preset + DSH services
+  -> session/event
+  -> Channel projection
+  -> React components
+  -> Ink/Yoga renderer
+  -> terminal
 ```
 
-> **新用户提示**：若 `dsh plugin` 安装时报 `ERR_PNPM_IGNORED_BUILDS`（pnpm ≥11 默认阻止带安装脚本的依赖，如 `@google/genai`、`protobufjs`——这些脚本运行时不需要，忽略即可），在 profile 的 `pnpm-workspace.yaml` 里加入：
->
-> ```yaml
-> allowBuilds:
->   '@google/genai': false
->   protobufjs: false
-> ```
->
-> `/update` 与 `dsh-tui update` 会自动写入这份配置，无需手工处理。
->
-> 更新时还会维护 `ignoredOptionalDependencies`（忽略异平台的 `@img/sharp-*` 原生包）——sharp 以全平台可选依赖分发，不处理时 `pnpm update` 会把各平台二进制一起下载（实测约 200MB）。名单每次更新按当前平台重算，异平台原生包不再下载（当前平台原生包与无平台归属的 wasm 回退包保留）；把 profile 搬到别的平台或 musl 容器后，在那台机器上跑一次更新即可刷新。老 profile 的 lockfile 里仍写着全平台条目，第一次更新会照旧下载一遍，之后才被忽略。块内不属于这两张平台表的条目（`fsevents`、自己写的 `@img/sharp-wasm32` 豁免）原样保留；需要 pnpm 支持该键，不认识的版本不会因此报错，只失去这项收益。
+The TUI owns interaction and presentation only. The session log remains the
+conversation source of truth, while model calls, tool execution, fork/resume,
+compaction, and persistence remain owned by DSH services. See the
+[architecture guide](docs/architecture.en.md) for module boundaries and
+performance details.
 
-更面向零基础的安装流程、profile 叠加机制、源码构建与常见问题见[安装与快速开始](docs/getting-started.md)。
+```text
+chat / tool base events ──> persisted Session log ──> TUI / Web
+          └───────────────> ActivityTracker (memory) ──> TUI status only
+```
 
-### 安全模式（`dsh-tui safe`）
+- **Gentle Mist Blue palette**: mist blue carries only branding, focus, interaction,
+  and highlights; body text stays neutral gray. On startup the terminal background
+  color (OSC 11) is queried to auto-select a light or dark palette, falling back to
+  dark when the terminal does not respond.
+- **Event-driven rendering**: the `session/event` stream drives incremental differential
+  rendering; scroll state is maintained independently.
+- **Layout-level virtualization**: per-frame cost for long sessions drops from
+  O(entire session) to O(visible window) — off-screen message lines render as
+  height-only placeholders whose subtrees never take part in layout.
+- **Zero-allocation hot paths**: the visibleRows pipeline (slice/filter/margins)
+  is memoized on rows identity, length, and a Uint8Array streaming-bit
+  fingerprint — zero array/Map allocations per scroll tick; wrapText and
+  markdown tokens flow through global LRU caches that reuse measurements
+  across mounts.
+- **Framed backfill and landing anchor**: opening the main screen mounts the
+  tail window first and backfills history in frames; `/resume` asserts a final
+  state where the newest message's last row is visible and reachable, and
+  long-session restores skip the splash animation to land straight on content.
+- **Context progress bar**: based on the pi-nano-context algorithm (largest-remainder
+  segmented coloring + multi-level condensed readouts).
+- **TPS meter**: based on pi-tps-meter — a streaming 1/8-block gauge, historical
+  min-max sparkline, and speed-based semantic colors (≥50 green / ≥20 yellow / <20 red).
+- **working-activity ecosystem**: the working-status line reuses the pure state machine of
+  [dsh-working-activity](https://github.com/ccch1mneyyy/working-activity),
+  deriving it in-process from base session events without writing UI state into the shared log.
+- **Terminal paste**: in raw mode `Ctrl+V` is handled by the app and reads the system
+  clipboard per platform — PowerShell `Get-Clipboard` on Windows, `osascript`/`pbpaste`
+  on macOS, and auto-detected `wl-paste`/`xclip`/`xsel` on Linux; regular non-image
+  files insert their path, while copied image files and clipboard bitmaps are written
+  to the attachment library and shown in the input as `[Image #N]`; plain text is
+  inserted at the cursor.
 
-dsh 意外结束时，安全模式提供只读的环境诊断、profile 插件清单与修复指引。
+## Known Limitations
 
-- **双入口**：手动运行 `dsh-tui safe`；或在 dsh 以非零退出码结束后按提示进入。该询问仅出现在交互终端——脚本/管道等非交互环境只追加一行提示，且退出码保真；询问只覆盖最终 dsh 子进程的非零退出码，不含启动挂起（dsh 启动失败等同退出码 1 处理）。
-- **只读边界**：安全模式控制面只读（诊断/清单/指引均不改动状态），例外有二："重试正常启动"与"创建/复用空白救援 profile"——后者是显式救援动作，它自己的安装只写进 `$DSH_HOME/profiles/dsh-tui-safe/`。另有两件要如实说明（都不是安全模式引入的新写行为）：① **任何一次 dsh 启动**都会维护共享的 `$DSH_HOME/profiles/node_modules` 模块回退链接（上游 dsh 的 `healProfilesModuleFallback`，没有开关），救援启动同样如此；② 安装由 pnpm 执行，pnpm 自己的全局 store（`pnpm store path`，默认在 `$DSH_HOME` **之外**）也会被写入或复用。
-- **救援 profile 的干净性必须先被证明，证不出就拒绝**：进入救援前逐条校验，任一不成立即拒绝启动并打印原因与处置办法（门禁本身只读）：① 候选目录已存在但不是可识别的 profile（拒绝往未知目录安装）；② 既有 profile 的根 manifest 声明了第三方插件（启动它就不是干净环境）；③ `$DSH_HOME/cordis.patch.yml`（home 层）**存在即拒绝**——上游 dsh 把它叠加到**每个** profile 之上（排在 bundle 层与 profile 层之后）；④ profile 自带的 `dsh-tui-safe/cordis.patch.yml`（profile 层）**有条目即拒绝**——dsh 同样把它组合进 profile（bundle 层之后）。后两层启动器既不解析 YAML 也拿不到组合结果，故一律 fail-closed；dsh 默认生成的「注释 + `[]`」不算条目，不影响复用。校验通过后：创建 `dsh-tui-safe`（仅 base + TUI，钉当前版本，走官方 `dsh plugin add`）并以显式构造的环境（剥离宿主遗留的会话控制变量）启动——主 profile 装炸时用 dsh 修 dsh 的通道；救援会话结束回到菜单。已存在且干净时按现状复用，绝不重复安装；半装或「安装报成功但包不可读」的救援 profile 会被清掉重建——删除前按**名字与形态**核对顶层条目（`package.json`/`pnpm-lock.yaml`/`pnpm-workspace.yaml`/`cordis.patch.yml`/`cordis.yml` 必须是文件，`node_modules`/`.dsh-module-fallback` 必须是目录，后者是 dsh 每次 profile 启动都会建的），发现别的名字或形态不符就拒绝并列出名字，绝不静默删你的文件；注意这些生成目录**内部**的内容会随目录一起被删掉。手动等价命令见指引（选项 4）。
-- **非交互环境**：`dsh-tui safe --rescue` 在脚本/管道下执行同一套门禁与创建/复用，只报告结论（就绪退出 0，被拒绝退出 1）；在交互终端里等价于菜单选项 5。
-- **旧全局启动器**：profile 副本不可读或过旧时，先升级启动器：`npm install -g --legacy-peer-deps @deepseek-harness-tui/dsh-tui@<版本>`。
-- **修复命令示例**（安全模式只列出，需自行执行）：`dsh plugin --profile dsh-tui remove <第三方插件>` 逐个移除可疑插件；`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<版本>` 重装对齐；`dsh-tui doctor` 环境诊断。
+- Injected context (plugin source content) has no standalone display and is merged
+  into the progress-bar statistics along with the system prompt.
+- `/model` live switching works via "session fork continuation" (DSH has no in-place
+  model-switch API): history is preserved as-is, the new session routes to the new
+  model, and the old session stays in the `/resume` list; the choice is written to
+  `~/.dsh-tui/model.json` and survives both restart and `/new`.
+- `Ctrl+V` clipboard reads depend on external tools per platform: PowerShell
+  `Get-Clipboard` on Windows (auto-retries when the clipboard is briefly locked by
+  another process, silently gives up when persistently locked); `osascript`/`pbpaste`
+  on macOS (multi-file copies in Finder have no stable AppleScript read path, falling
+  back to text/images); Linux needs one of `wl-paste`/`xclip`/`xsel` and a connectable
+  session (a missing tool or unreachable session shows a "no clipboard tool available"
+  notice). Unsupported clipboard-bitmap formats are rejected with a warning and
+  their private temporary export is deleted; an unavailable attachment service
+  likewise leaves the bitmap out of the draft. Copied image files can still fall
+  back to an `@` reference when direct staging fails.
+- Exit finishes with a process exit and does not wait for the agent's async disk writes
+  (persistence is covered by the persistence plugin as a backstop).
+- **Agent view background sessions live inside this process**: they all stop when the
+  TUI exits (a supervisor process and survival across restarts are out of v1 scope);
+  row summaries come from the session's own output with no extra summary-model calls;
+  worktree isolation, pinning, directory grouping, and shell background jobs are not
+  shipped yet.
+- Tool-level approval is implemented: the approval service + TUI answerer (local
+  approval panel) consumes the approval stream, and privilege-escalation commands pop
+  an approval bar. `/permission` preset switching comes from dsh-base's
+  `permission-presets` plugin and is available in the profile composition by default.
+  If that registry service is absent, TUI uses its legacy three-row compatibility
+  roster; a malformed mounted service is unavailable and fails closed. If the
+  external `/permission` command is not registered, input keeps the existing
+  default/model dispatch behavior.
+- `/connect` `/hooks` are reserved placeholders: the corresponding
+  capabilities have no equivalent mechanism on the DSH side, and the commands give an
+  explicit explanation rather than staying silent.
+- The `/thinking` display toggle is **not persisted**; restarts and new sessions fall
+  back to the default.
+- `/compact` is unavailable under the `minimal` preset (that preset does not compose
+  compaction).
+- `/update` works only when started via `dsh --profile` and is refused while a turn is
+  running.
 
+See [Architecture and limitations](docs/architecture.en.md) for the complete list of
+known limitations and the security boundary.
 
+## Development
 
-## 插件扩展与开发指南
+CI uses Node 24 and pnpm 11. The package supports Node `^22.19 || >=24`.
 
-想为 dsh-TUI 做插件/扩展？欢迎加入生态！
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+pnpm smoke
+```
 
-- **接口与兼容性协定 / 插件开发指南**：[终端交互生态插件准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md)（准入规范、接缝、契约、验证清单）
-- **生态组织**：[dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem)（社区插件与模板的家）
-- **模板仓库**：[plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template)（从模板起步，5 分钟出一个插件）
-- **参考实现**：`dsh-working-activity`（实时工作状态行：TUI 槽位 + `activity/status` 会话事件双出口）
+`lib/types/` is ignored generated output. `pnpm build` recompiles it from a
+clean output directory and runs the build gates. **Git URL installs are not supported** (the source manifest keeps
+`@dsh-std/*` as workspace deps, `vendor/dsh-std` is a submodule, and pnpm ≥11 refuses
+git-hosted `prepare` scripts by default); install the registry package:
+`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`. Rendering, questionnaire, or tool-card
+changes also require the relevant regression scripts.
 
-### 接缝稳定性参考
+## Plugin Ecosystem
 
-按当前实现成熟度给出的**非正式**分级，帮助插件作者评估投入；正式状态与兼容性协定以
-[准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md)为准：
+Want to build a plugin or extension for dsh-TUI? Join the ecosystem:
 
-| 分级 | 接缝 |
+- **Interface & compatibility agreement / Plugin development guide**: [Terminal Interactive Ecosystem Plugin Admission and Development Guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) (admission spec, seams, contracts, verification checklist)
+- **Organization**: [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem)
+  (home of community plugins and templates)
+- **Template repository**: [plugin-template](https://github.com/dsh-tui-ecosystem/plugin-template)
+  (start from the template and ship a plugin in minutes)
+- **Reference implementation**: `dsh-working-activity` (live working-status
+  line with dual outlets: TUI prompt slot + `activity/status` session events)
+
+### Seam stability reference
+
+An **informal** maturity grading to help plugin authors gauge investment;
+the authoritative status and compatibility agreement live in the
+[admission & development guide](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md):
+
+| Tier | Seams |
 | --- | --- |
-| 稳定候选（形态冻结；如有破坏性变更，先在次版本弃用告警再移除） | 六 设置区块 · 八 全屏场景 · 十 托管对话框 · 十一 状态行 · 十二 键盘快捷键 · 十三 条目渲染器 |
-| 实验性（仍可能随 dsh-std / 准入规范演进调整） | 九 决策事件 · toast 通知（`ctx.tuiToast`，新增） |
-| 跟随上游（稳定性由 cordis / dsh 官方机制决定） | 一 会话事件 · 二 官方 prompt 槽位 · 三 技能打包 · 四 主题 · 五 system prompt 段 · 七 profile 组合 |
+| Stable candidate (shape frozen; breaking changes go through a minor-version deprecation warning before removal) | VI settings sections · VIII full-screen scenes · X managed dialogs · XI status line · XII keyboard shortcuts · XIII entry renderers |
+| Experimental (may still shift with dsh-std / admission-spec evolution) | IX decision events · toast notifications (`ctx.tuiToast`, new) |
+| Upstream-tracked (stability owned by the cordis / dsh mechanisms underneath) | I session events · II official prompt slots · III bundled skills · IV themes · V system-prompt sections · VII profile composition |
 
-另：`@deepseek-harness-tui/dsh-tui/api`（纯类型入口）为实验性公开面；
-`@deepseek-harness-tui/dsh-tui/test-utils` 子路径与 `ctx.tuiPluginHost.grants.corrupt`
-已随 adapter 分层重构（#705）移除，`grants` 收窄为 `HostGrantFacade`，迁移细节见该 PR。
+Also an experimental public surface: `@deepseek-harness-tui/dsh-tui/api`
+(types-only entry). The `@deepseek-harness-tui/dsh-tui/test-utils` subpath and
+`ctx.tuiPluginHost.grants.corrupt` were removed in the adapter layering refactor
+(#705), and `grants` is now the narrower `HostGrantFacade`; see that PR for
+migration details.
 
+The core repository remains independent; community plugins live in their own
+repos. The organization only maintains the listing and admission rules — it
+does not endorse or warrant the functionality, quality, or safety of community
+plugins. Plugin authors keep full ownership of their repositories and are
+responsible for their maintenance and security.
 
+## Documentation
 
-## 文档索引
-
-| 主题 | 内容 |
+| Topic | Contents |
 | --- | --- |
-| [安装与快速开始](docs/getting-started.md) | 前置条件、安装、启动、profile 生命周期、源码开发 |
-| [配置参考](docs/configuration.md) | Cordis 覆盖、配置字段、Agent preset、MCP、环境变量 |
-| [主题系统](docs/themes.md) | 内置主题、自动检测、静态 JSON 与 npm 插件主题、校验规则 |
-| [交互与命令](docs/interaction.md) | 快捷键、鼠标、问卷、slash command 与会话工作流 |
-| [架构与限制](docs/architecture.md) | 运行链路、渲染与持久化设计、安全边界、已知限制 |
-| [社区管理框架](docs/community-management.md) | 社区入口、角色、提案流程、roadmap 规则与维护节奏 |
-| [项目路线图](docs/roadmap.md) | 公开目标、阶段、任务状态、退出条件与 Future Work |
-| [VS Code 使用指南](docs/vscode.md) | 在 VS Code 集成终端运行 dsh-tui；companion 扩展 `dsh-tui-vscode` 提供多会话、会话历史与指定会话恢复（已上架 Marketplace） |
-| [贡献与开发约定](docs/contributing.md) | 贡献流程、仓库地图、构建产物、验证矩阵与修改规则 |
-| [插件准入与开发指南](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) | 接口与兼容性协定 / 插件准入规范 / 插件接缝 / 契约 / 验证清单（已并入 dsh-ecosystem-spec） |
+| [Getting started](docs/getting-started.en.md) | Prerequisites, installation, startup, safe mode, profile lifecycle, source development |
+| [Configuration](docs/configuration.en.md) | Cordis overrides, fields, agent presets, MCP, environment variables |
+| [Themes](docs/themes.en.md) | Built-in themes, background detection, static JSON and npm plugin themes, validation |
+| [Interaction and commands](docs/interaction.en.md) | Keyboard, mouse, questionnaires, slash commands, session workflows |
+| [Architecture and limitations](docs/architecture.en.md) | Runtime path, rendering, persistence, security boundary, known limitations |
+| [Community Management](docs/community-management.en.md) | Community entry points, roles, proposal flow, roadmap rules, and maintenance cadence |
+| [Project Roadmap](docs/roadmap.en.md) | Public goals, phases, task status, exit criteria, and Future Work |
+| [VS Code guide](docs/vscode.en.md) | Running dsh-tui in the VS Code integrated terminal; the `dsh-tui-vscode` companion extension offers multiple sessions, session history, and specific-session resume (on the Marketplace) |
+| [Contributing](docs/contributing.en.md) | Contribution workflow, repository map, build artifacts, verification matrix, change rules |
+| [Plugin admission & development](https://github.com/T-Auto/dsh-ecosystem-spec/blob/main/docs/plugin-admission-and-development.md) | Interface & compatibility agreement / plugin admission spec / seams / contracts / verification checklist (merged into dsh-ecosystem-spec) |
 
-完整的中英文索引见 [`docs/README.md`](docs/README.md)。
+The complete bilingual index is [`docs/README.md`](docs/README.md).
 
+## Community
 
+- **Ecosystem organization**: [dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) —
+  the home of community plugins, templates, and the curated list. Come ship a
+  plugin, pitch an idea, or just hang out 🐋
+- **Chat groups** (Chinese-language): usage questions, plugin ideas, and
+  feature wishes are all welcome.
+- **Code of conduct**: please read the
+  [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.en.md) before taking
+  part.
 
-## 社区
-
-- **生态组织**：[dsh-tui-ecosystem](https://github.com/dsh-tui-ecosystem) —— 社区插件、模板与收录列表的家。欢迎来发插件、提创意、互相取暖 🐋
-- **社区交流群**：使用问题、插件创意、功能许愿，都欢迎进来聊。
-- **行为准则**：参与前请读一遍[贡献者行为准则](CODE_OF_CONDUCT.md)。
-
-| 微信群（dsh-TUI 社区交流 4 群） | QQ 群（群号 572549239） |
+| WeChat group (dsh-TUI community 4) | QQ group (ID 572549239) |
 | :---: | :---: |
-| <img src="screenshots/wechat-group.jpg" alt="dsh-TUI 社区交流 4 群微信群二维码" width="200"> | <img src="screenshots/qq-group.png" alt="dsh-TUI 社区交流群 QQ 群二维码" width="200"> |
+| <img src="screenshots/wechat-group.jpg" alt="dsh-TUI community WeChat group 4 QR code" width="200"> | <img src="screenshots/qq-group.png" alt="dsh-TUI community QQ group QR code" width="200"> |
 
-> 微信群二维码约 7 天过期一次，如遇失效请走 QQ 群（572549239），或开个 issue 提醒我们更新。
+> The WeChat QR code expires roughly every 7 days; if it stops working, use
+> the QQ group (572549239) or open an issue to nudge us for a refresh.
 
-## 权限与安全边界
+## Permissions and Security Boundary
 
-> **Windows 安全警告：** Windows profile 默认使用 `danger-full-access`，且 approval 默认是 `never`。这会授予工具不受限制的访问权限；在敏感凭证或不可信仓库环境中启动前，务必先检查并收紧 profile 配置。
+> **Windows security warning:** The Windows profile defaults to `danger-full-access` with approval set to `never`. Tools therefore have unrestricted access; before starting in an environment with sensitive credentials or an untrusted repository, inspect and tighten the profile configuration.
 
-`dsh-TUI` 不实现独立沙箱，而是使用当前 DSH profile 的文件、Shell、sandbox 与 approval 策略。权限预设来自 DSH `permissionPresets` registry：服务缺失时使用 legacy 三项兼容名册；服务已挂载但为空、损坏或不一致时标记为 unavailable，TUI fail closed，不伪造名册。可用 registry 按声明顺序提供第三方预设并自动进入补全、picker 与 `Shift+Tab` 循环（排除 `custom`/`status`、canonical 预设、重复 identity 与不安全 token）；首次观察遵循 registry 顺序，后续刷新保留已见 identity 的相对顺序。服务可用时 `/permission` 以本地命令形式常驻菜单：切换优先调用官方 `/permission <preset>` 命令；命令行未暴露给本 agent 时，回退到 permissionPresets 服务自身的官方写路径（与命令 handler 同一实现，写真实 `permission/preset`/`sandbox/mode`/`approval/policy` 事件，绝不由 TUI 伪造），并以事件/读回确认；两条路都不可用时显式提示，绝不静默。计划模式退出先恢复进入前的 atom，再把权限身份还原到你进入前所在的预设（registry 仍提供时）。在包含敏感凭证或不可信仓库的环境中启动前，请先检查 profile 配置。
+`dsh-TUI` does not implement a separate sandbox. It uses the filesystem,
+shell, sandbox, and approval policies of the active DSH profile. Permission
+presets come from the mounted DSH `permissionPresets` registry (a missing
+service falls back to the legacy three-row compatibility roster; a mounted
+but unusable one is marked unavailable and fails closed — never an invented
+roster), and third-party presets appear automatically in completion, the
+picker, and the `Shift+Tab` cycle. `/permission` stays on the menu as a
+first-class local command: switches prefer the official `/permission <preset>`
+command; when that command is not exposed, the TUI falls back to the
+permissionPresets service's own official write path (real events, never
+fabricated), and when neither path exists it fails loudly instead of silently
+falling through. Exiting plan mode restores the pre-plan atoms first, then
+returns the durable identity to the preset you were on before plan mode.
 
-详见[权限边界与已知限制](docs/architecture.md#权限与安全边界)。
+See [Permissions and security boundary](docs/architecture.en.md#permissions-and-security-boundary)
+for details.
 
-### 致谢
+## Acknowledgments
 
-- 像素鲸鱼娘的 22 帧手绘原图（Excel 逐格绘制）与闲置动画行为（摆鱼鳍、拍尾巴、入睡冒 Z、点击冒爱心）移植自 **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**（DeepSeek Harness Web 端鲸鱼宠物插件，作者 [@lhh010](https://github.com/lhh010)，BSD-3-Clause），感谢作者与灵感 🐋💜
+- The pixel whale's 22 hand-drawn frames (drawn cell by cell in Excel) and
+  its idle behaviors (fin flutters, tail thumps, sleep Z's, click hearts)
+  are ported from **[dsh-ui-whale](https://github.com/lhh010/dsh-ui-whale)**
+  (the DeepSeek Harness web whale-pet plugin, by [@lhh010](https://github.com/lhh010),
+  BSD-3-Clause) — thank you for the art and the inspiration 🐋💜
 
-### 友情链接
+## Friends' Links
 
-朋友们开发的[社区、相关项目与周边工具](docs/links.md)
+Community, related projects, and companion tools built by friends:
+[see the links page](docs/links.md)
 
 ## Stars
 
-<!-- star-history:start -->
 [![Star History](https://raw.githubusercontent.com/ccch1mneyyy/dsh-TUI/bot-star-history/assets/star-history/star-history.png)](https://star-history.com/#ccch1mneyyy/dsh-TUI&Date)
-<!-- star-history:end -->
-
 
 ## License
 

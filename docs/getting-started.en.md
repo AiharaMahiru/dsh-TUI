@@ -117,6 +117,68 @@ dsh-tui.cmd --resume
 last selected by the TUI. Set `DSH_TUI_WORKSPACE` to override the working
 directory used by the batch launcher.
 
+## Safe mode (`dsh-tui safe`)
+
+When dsh exits unexpectedly, safe mode provides read-only environment
+diagnostics, a profile plugin inventory, and repair guidance.
+
+- **Two entries**: run `dsh-tui safe` manually; or accept the prompt offered
+  after dsh exits with a non-zero code. The prompt only appears in interactive
+  terminals — scripts and pipes just get a single appended hint line, and the
+  exit code is preserved. It covers only a non-zero exit of the final dsh
+  child process, not a startup hang (a spawn failure is treated as exit
+  code 1).
+- **Read-only boundary**: the safe-mode control plane is read-only (diagnostics,
+  inventory, and guidance never change state); the two exceptions are
+  "retry normal startup" and "create/reuse blank rescue profile" — the latter is
+  an explicit rescue action whose own install writes only under
+  `$DSH_HOME/profiles/dsh-tui-safe/`. Two more things, stated plainly (neither is
+  a write introduced by safe mode): (a) **every** dsh launch maintains the shared
+  `$DSH_HOME/profiles/node_modules` module-fallback links (upstream dsh's
+  `healProfilesModuleFallback`, no opt-out), and a rescue launch is no exception;
+  (b) the install is performed by pnpm, so pnpm's own global store
+  (`pnpm store path`, outside `$DSH_HOME` by default) is written to or reused.
+- **The rescue profile's cleanliness must be proven first — if it cannot be, the
+  rescue refuses to start**: each of these is checked before entering the rescue,
+  and any one of them blocks it with the reason and the fix printed (the checks
+  themselves are read-only): (1) the candidate directory exists but is not a
+  recognizable profile (never install into an unknown directory); (2) the
+  existing profile's root manifest declares third-party plugins (starting it
+  would not be clean); (3) `$DSH_HOME/cordis.patch.yml` (the home layer) exists —
+  upstream dsh applies it over **every** profile (after the bundle and profile
+  layers); (4) the profile's own `dsh-tui-safe/cordis.patch.yml` (the profile
+  layer) carries entries — dsh composes that one into the profile as well (after
+  the bundle layers). The launcher neither parses YAML nor sees the composed
+  result, so both layers are fail-closed; the "comments + `[]`" file dsh
+  generates by default does not count as entries and does not block reuse. Once
+  the checks pass it creates `dsh-tui-safe` (base + TUI only, pinned to the
+  current version, via the official `dsh plugin add`) and starts it with an
+  explicitly constructed environment (host session-control variables are
+  dropped) — the "use dsh to fix dsh" lane for a broken main profile. When the
+  rescue session ends you are back in the menu. A clean existing profile is
+  reused as-is, never re-installed over; a half-installed or "install reported
+  success but the package is unreadable" rescue profile is removed and rebuilt
+  — **only after checking the top-level entries by name *and* shape**
+  (`package.json`/`pnpm-lock.yaml`/`pnpm-workspace.yaml`/`cordis.patch.yml`/
+  `cordis.yml` must be files, `node_modules`/`.dsh-module-fallback` must be
+  directories; the latter is created by dsh on every profile launch). Any other
+  name, or a wrong shape, makes it refuse and list the entries instead of
+  deleting silently. Note that the **contents** of those generated directories
+  are removed along with them. Manual equivalents are listed in the guidance
+  (option 4).
+- **Non-interactive use**: `dsh-tui safe --rescue` runs the same gate plus
+  create/reuse under scripts and pipes and reports only the verdict (exit 0 when
+  ready, 1 when refused); in an interactive terminal it is equivalent to menu
+  option 5.
+- **Outdated global launcher**: if the profile copy is unreadable or too old,
+  upgrade the launcher first:
+  `npm install -g --legacy-peer-deps @deepseek-harness-tui/dsh-tui@<version>`.
+- **Example repair commands** (safe mode only lists them — you run them
+  yourself): `dsh plugin --profile dsh-tui remove <third-party plugin>` to
+  remove suspects one by one,
+  `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<version>`
+  to reinstall/align, and `dsh-tui doctor` for environment diagnostics.
+
 ## Update to the latest version
 
 The project moves fast. Updating reuses the install command with an explicit
@@ -137,6 +199,35 @@ dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@latest
   session store shared with dsh web), so older sessions missing from the
   list after a major update is expected — the underlying data is not
   deleted.
+
+### pnpm install-script blocks and foreign-platform natives
+
+If `dsh plugin` fails with `ERR_PNPM_IGNORED_BUILDS` (pnpm ≥11 blocks
+dependencies that carry install scripts by default, e.g. `@google/genai` and
+`protobufjs` — none of these scripts is needed at runtime, so they can safely
+be ignored), add to the profile's `pnpm-workspace.yaml`:
+
+```yaml
+allowBuilds:
+  '@google/genai': false
+  protobufjs: false
+```
+
+`/update` and `dsh-tui update` seed this configuration automatically — no
+manual step needed.
+
+Updates also maintain `ignoredOptionalDependencies` covering foreign-platform
+`@img/sharp-*` natives: sharp ships as all-platform optional dependencies, and
+an untouched `pnpm update` downloads every platform's binaries (about 200MB
+measured). The list is recomputed for the running platform on every update, so
+the foreign natives are skipped while this platform's own and the
+platform-agnostic wasm fallbacks stay; move the profile to another platform or
+musl container and the next update there refreshes it. An existing profile's
+lockfile still lists every platform, so its first update downloads them once
+more before the filter takes effect. Entries outside those two platform tables
+(a user's `fsevents`, a hand-written `@img/sharp-wasm32` exemption) are left as
+they are; this needs a pnpm that supports the key, and one that does not fails
+nothing — it merely loses the saving.
 
 ## Profile configuration
 

@@ -124,6 +124,17 @@ dsh-tui.cmd --resume
 `--resume` 会读取 `%USERPROFILE%\.dsh-tui\resume.txt`，恢复 TUI 最近选择的
 会话。设置 `DSH_TUI_WORKSPACE` 可以覆盖批处理启动器采用的工作目录。
 
+## 安全模式（`dsh-tui safe`）
+
+dsh 意外结束时，安全模式提供只读的环境诊断、profile 插件清单与修复指引。
+
+- **双入口**：手动运行 `dsh-tui safe`；或在 dsh 以非零退出码结束后按提示进入。该询问仅出现在交互终端——脚本/管道等非交互环境只追加一行提示，且退出码保真；询问只覆盖最终 dsh 子进程的非零退出码，不含启动挂起（dsh 启动失败等同退出码 1 处理）。
+- **只读边界**：安全模式控制面只读（诊断/清单/指引均不改动状态），例外有二："重试正常启动"与"创建/复用空白救援 profile"——后者是显式救援动作，它自己的安装只写进 `$DSH_HOME/profiles/dsh-tui-safe/`。另有两件要如实说明（都不是安全模式引入的新写行为）：① **任何一次 dsh 启动**都会维护共享的 `$DSH_HOME/profiles/node_modules` 模块回退链接（上游 dsh 的 `healProfilesModuleFallback`，没有开关），救援启动同样如此；② 安装由 pnpm 执行，pnpm 自己的全局 store（`pnpm store path`，默认在 `$DSH_HOME` **之外**）也会被写入或复用。
+- **救援 profile 的干净性必须先被证明，证不出就拒绝**：进入救援前逐条校验，任一不成立即拒绝启动并打印原因与处置办法（门禁本身只读）：① 候选目录已存在但不是可识别的 profile（拒绝往未知目录安装）；② 既有 profile 的根 manifest 声明了第三方插件（启动它就不是干净环境）；③ `$DSH_HOME/cordis.patch.yml`（home 层）**存在即拒绝**——上游 dsh 把它叠加到**每个** profile 之上（排在 bundle 层与 profile 层之后）；④ profile 自带的 `dsh-tui-safe/cordis.patch.yml`（profile 层）**有条目即拒绝**——dsh 同样把它组合进 profile（bundle 层之后）。后两层启动器既不解析 YAML 也拿不到组合结果，故一律 fail-closed；dsh 默认生成的「注释 + `[]`」不算条目，不影响复用。校验通过后：创建 `dsh-tui-safe`（仅 base + TUI，钉当前版本，走官方 `dsh plugin add`）并以显式构造的环境（剥离宿主遗留的会话控制变量）启动——主 profile 装炸时用 dsh 修 dsh 的通道；救援会话结束回到菜单。已存在且干净时按现状复用，绝不重复安装；半装或「安装报成功但包不可读」的救援 profile 会被清掉重建——删除前按**名字与形态**核对顶层条目（`package.json`/`pnpm-lock.yaml`/`pnpm-workspace.yaml`/`cordis.patch.yml`/`cordis.yml` 必须是文件，`node_modules`/`.dsh-module-fallback` 必须是目录，后者是 dsh 每次 profile 启动都会建的），发现别的名字或形态不符就拒绝并列出名字，绝不静默删你的文件；注意这些生成目录**内部**的内容会随目录一起被删掉。手动等价命令见指引（选项 4）。
+- **非交互环境**：`dsh-tui safe --rescue` 在脚本/管道下执行同一套门禁与创建/复用，只报告结论（就绪退出 0，被拒绝退出 1）；在交互终端里等价于菜单选项 5。
+- **旧全局启动器**：profile 副本不可读或过旧时，先升级启动器：`npm install -g --legacy-peer-deps @deepseek-harness-tui/dsh-tui@<版本>`。
+- **修复命令示例**（安全模式只列出，需自行执行）：`dsh plugin --profile dsh-tui remove <第三方插件>` 逐个移除可疑插件；`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui@<版本>` 重装对齐；`dsh-tui doctor` 环境诊断。
+
 ## 更新到最新版本
 
 项目迭代很快，更新复用安装命令，显式指定 `@latest`：
@@ -152,6 +163,20 @@ pnpm add -g @deepseek-harness-tui/dsh-tui@latest
 - 用户覆盖层 `cordis.patch.yml` 在更新中原样保留；会话数据的存放位置
   可能随版本变化（如 0.3.7 起 `/resume` 改用与 dsh web 共享的 JSONL
   会话库），跨大版本更新后旧会话不在列表属预期，原数据不会被删除。
+
+### pnpm 安装脚本拦截与异平台原生包
+
+若 `dsh plugin` 安装时报 `ERR_PNPM_IGNORED_BUILDS`（pnpm ≥11 默认阻止带安装脚本的依赖，如 `@google/genai`、`protobufjs`——这些脚本运行时不需要，忽略即可），在 profile 的 `pnpm-workspace.yaml` 里加入：
+
+```yaml
+allowBuilds:
+  '@google/genai': false
+  protobufjs: false
+```
+
+`/update` 与 `dsh-tui update` 会自动写入这份配置，无需手工处理。
+
+更新时还会维护 `ignoredOptionalDependencies`（忽略异平台的 `@img/sharp-*` 原生包）——sharp 以全平台可选依赖分发，不处理时 `pnpm update` 会把各平台二进制一起下载（实测约 200MB）。名单每次更新按当前平台重算，异平台原生包不再下载（当前平台原生包与无平台归属的 wasm 回退包保留）；把 profile 搬到别的平台或 musl 容器后，在那台机器上跑一次更新即可刷新。老 profile 的 lockfile 里仍写着全平台条目，第一次更新会照旧下载一遍，之后才被忽略。块内不属于这两张平台表的条目（`fsevents`、自己写的 `@img/sharp-wasm32` 豁免）原样保留；需要 pnpm 支持该键，不认识的版本不会因此报错，只失去这项收益。
 
 ## Profile 配置
 

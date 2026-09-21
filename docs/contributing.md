@@ -96,8 +96,8 @@ DeepSeek Harness 拥有，TUI 只消费它们。
   workflow 只编排；`pr-gate.yml` 必须 checkout 默认分支，不能跑 PR 头。
 - `lib/`：由 `src/` 生成、忽略入库并随 npm 分发的 JavaScript、声明与声明映射。
   `./invariant` 也直接使用 `lib/types/dsh-adapter/invariant.js` 的编译结果。
-- `README.md` 与 `README_EN.md`：中英文用户文档。行为、配置、快捷键与限制
-  必须两版同步。
+- `README.md`（英文，默认门面）与 `README_ZH.md`（中文）：双语用户文档。
+  行为、配置、快捷键与限制必须两版同步。
 
 ## 运行时形态（Runtime Shape）
 
@@ -385,7 +385,7 @@ sleep 同行尾注释或紧贴上方的注释里。`verify:fixed-window` 门禁�
 
 | 改动 | 需要同步 |
 | --- | --- |
-| 插件配置或环境行为 | `src/index.ts`、运行时消费、`cordis.patch.yml`、`cordis.yml`、`README.md`、`README_EN.md` |
+| 插件配置或环境行为 | `src/index.ts`、运行时消费、`cordis.patch.yml`、`cordis.yml`、`README.md`、`README_ZH.md` |
 | Slash 命令或快捷键 | `src/commands.ts`、`src/screens/Chat.tsx`、帮助/输入组件、双 README、相关技能映射/测试 |
 | 主题契约、插件接缝或持久化主题行为 | `src/theme.ts`、`src/themeCatalog.ts`、`src/dsh-adapter/themes.ts`、所有色板、主题 provider/picker、自定义主题解析器、主题验证、双 README、插件文档 |
 | 会话/channel 行为 | `src/dsh-adapter/channel.ts`、受影响的 UI 投影、编译产物、聚焦 channel/回放回归 |
