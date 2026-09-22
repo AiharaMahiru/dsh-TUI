@@ -631,11 +631,17 @@ const GROUPS = {
 // （覆盖时恢复旧 key 而非误删）、env shadow 跳过、rc.6 兼容守卫、
 // hideCustomInput 逐题标记。
     ["verify-provider-wizard", ['node', 'scripts/verify-provider-wizard.mjs']],
+// /connect 远程向导回归：凭据遮罩/摘要脱敏，以及会话、工作区、模型、
+// Agent/权限/plan 和本地工作区操作的完整菜单编排。
+    ["verify-remote-wizard", ['node', '--import', 'tsx/esm', 'scripts/verify-remote-wizard.mjs']],
+// 本地化工作区文件能力：根路径约束、父级/末级符号链接、大小限制、
+// 创建专用语义与版本条件写。
+    ["verify-remote-local-files", ['node', '--import', 'tsx/esm', 'scripts/verify-remote-local-files.mjs']],
 // /login 凭据状态回归（issue #213）：只通过 credentials.describe()
 // 展示 configured/source/writable，managed key 不得误报或泄露值。
     ["verify-login-credentials", ['node', '--import', 'tsx/esm', 'scripts/verify-login-credentials.tsx']],
-// 提问面板 hideCustomInput 行为回归：纯选择题隐藏输入行且 Tab/打字
-// 不劫持焦点，纯文本题忽略 hide 标记，多选题默认行为不回退。
+// 提问面板本地扩展回归：纯选择题隐藏输入行且 Tab/打字不劫持焦点，
+// 纯文本题忽略 hide 标记，多选题默认行为不回退，凭据明文只提交不渲染。
     ["verify-askpanel-hide-custom-input", ['node', '--import', 'tsx/esm', 'scripts/verify-askpanel-hide-custom-input.tsx']],
 // 问卷面板粘贴回归：bracketed paste 压平插入（纯换行块不得提交、ANSI/
 // OSC 剥净）、Ctrl+V/Alt+V 异步剪贴板插入到实时光标（读期间打字真竞态

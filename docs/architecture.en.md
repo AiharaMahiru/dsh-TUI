@@ -272,13 +272,16 @@ visual TUI alone does not describe the effective policy.
   fails closed.
 - If the external `/permission` command is not registered, input follows
   the existing default/model dispatch behavior.
-- `/vim`, `/connect`, and `/hooks` are compatibility placeholders,
-  not evidence that those DSH capabilities are mounted.
+- `/connect` now provides the dsh Web remote control plane, while normal
+  prompts/transcripts and the main session UI still use the local Channel.
+  `/hooks` remains a compatibility placeholder and `/vim` is a local editor mode.
 - There is no automated full-flow suite that requires real model
   credentials; CI uses headless rendering and fake services.
-- This L4 batch has **not** manually exercised a real TTY in inline/fullscreen
-  mode, at narrow width, or on Windows ConPTY; live model integration still
-  needs a target-terminal check. Full RFC state (L5) is deferred from this batch.
+- A Linux fullscreen PTY has exercised `/connect` from an isolated profile
+  installed from the release tarball: sign-in, quota, sessions, workspaces,
+  model, Agent/permission presets, plan mode, and clean exit. Inline, narrow
+  terminals, Windows ConPTY, and live model generation still need target-terminal
+  validation. Full remote Channel state (L5) remains deferred.
 - L4 has completed one independent local review and targeted fixes. Final
   compile, build/package gates, all 58 channel-ui checks, and the three CI
   renderer regressions passed; this is not real-TTY or long-term memory stress evidence.

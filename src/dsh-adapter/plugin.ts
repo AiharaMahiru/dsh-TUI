@@ -57,6 +57,7 @@ import { getHostStatusStore, type TuiStatusRuntime } from './status.js'
 import { getHostToastStore, type TuiToastRuntime } from './toast.js'
 import { getHostShortcuts, type TuiShortcutRuntime } from './shortcuts.js'
 import { getHostThemes, type TuiThemeRuntime } from './themes.js'
+import { createRemoteTuiControl } from './remote-control.js'
 import { attachSessionToWorkspace } from './workspace.js'
 import { createLocalWorkspaceRuntime, getHostWorkspaceRuntime } from './workspaces.js'
 import { getHostSettingsSections, getLocalSettingsSectionsHost, type TuiSettingsField, type TuiSettingsSectionsRuntime } from './settings-sections.js'
@@ -310,6 +311,10 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   })
   const questionStore = new QuestionStore(adapterRuntimeFor(ctx))
   bindQuestionStore(ctx, questionStore)
+  const remoteControl = createRemoteTuiControl({
+    endpoint: config.remoteEndpoint ?? process.env.DSH_TUI_REMOTE_ENDPOINT,
+  })
+  ctx.effect(() => () => { void remoteControl.dispose() })
   // One store, one teardown effect on both API lines. The compatibility
   // adapter binds either registration to this Cordis fiber; this separate
   // effect rejects asks still parked in the UI during teardown.
@@ -1592,6 +1597,7 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     && initialPromptFromCmdlineArgs(process.argv.slice(2)) === ''
   const chat = React.createElement(Chat, {
     channel,
+    remoteControl: shadow ? undefined : remoteControl,
     renderScene: createChannelSceneOutlet(() => rawChannel.pluginScene),
     questionStore,
     approvalStore,
@@ -1608,7 +1614,9 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     // browser — enter the alt screen themselves in inline mode; in fullscreen
     // the tree is already wrapped below, so they must not nest.
     fullscreen: bootedFullscreen,
-    onExit: () => handleExit(),
+    onExit: () => {
+      void remoteControl.dispose().finally(() => handleExit())
+    },
     // `/restart`: respawn this process and resume the session, no update.
     onRestart: () => {
       if (exited || restartRequested) return

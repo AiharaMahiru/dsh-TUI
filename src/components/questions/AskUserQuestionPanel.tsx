@@ -67,6 +67,9 @@ export type AskUserQuestionPanelProps = {
      *  (local wizards, e.g. /provider). Ignored when there are no options —
      *  a text-only question would otherwise be unanswerable. */
     readonly hideCustomInput?: boolean
+    /** Mask the free-text row while retaining the real value only in local
+     * component state. Used by host wizards that collect passwords. */
+    readonly maskInput?: boolean
     /** Pre-checked option labels (multi-select) / default-focused option
      *  (single-select) shown on first display, before any saved draft — e.g.
      *  the models already enabled on a provider being edited. */
@@ -525,7 +528,9 @@ export function AskUserQuestionPanel({
   // char and the visual split index into the point array — never raw
   // UTF-16 offsets, which could land inside a surrogate pair.
   const textPoints = [...customText]
+  const displayPoints = question.maskInput === true ? textPoints.map(() => '•') : textPoints
   const cursorChar = customCursor < textPoints.length ? textPoints[customCursor] : ' '
+  const displayCursorChar = question.maskInput === true && cursorChar !== ' ' ? '•' : cursorChar
   /** Mouse: click the input row to focus it (same as Tab). */
   const focusInputRow = (): void => {
     if (hideCustomInput) return
@@ -587,11 +592,11 @@ export function AskUserQuestionPanel({
           <Text ref={caretRef} dimColor>{t('question-direct-input')}</Text>
         ) : (
           <>
-            <Text wrap="wrap">{textPoints.slice(0, customCursor).join('')}</Text>
+            <Text wrap="wrap">{displayPoints.slice(0, customCursor).join('')}</Text>
             {inputFocused
-              ? <Text ref={caretRef} inverse>{cursorChar}</Text>
+              ? <Text ref={caretRef} inverse>{displayCursorChar}</Text>
               : <Text ref={caretRef} color="suggestion">▏</Text>}
-            <Text wrap="wrap">{textPoints.slice(inputFocused ? customCursor + 1 : customCursor).join('')}</Text>
+            <Text wrap="wrap">{displayPoints.slice(inputFocused ? customCursor + 1 : customCursor).join('')}</Text>
           </>
         )}
       </Box>

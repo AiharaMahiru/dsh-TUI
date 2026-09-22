@@ -652,6 +652,16 @@ Additional forms:
   with arguments passed through unchanged; DSH and the active composition own their
   content and discovery.
 
-`/connect` and `/hooks` are currently compatibility placeholders.
+`/connect` is the dsh Web remote-control wizard. It takes an HTTPS endpoint
+from its argument, `DSH_TUI_REMOTE_ENDPOINT`, or an interactive prompt, then
+provides masked sign-in, quota, cloud session/workspace, model,
+Agent/permission preset, plan-mode, and local-directory binding operations.
+`/hooks` remains a compatibility placeholder.
 
-- When the DSH composition has no matching capability, each command explains that explicitly rather than silently doing nothing.
+- Passwords are not persisted. Only the endpoint and session cookies are kept
+  in a 0600 local file, which sign-out clears.
+- Local directories expose only relative `list/read/write` under an explicitly
+  authorized root. A disabled server bridge reports
+  `WORKSPACE_BRIDGE_UNAVAILABLE` instead of falling back to unrestricted access.
+- `/connect` is currently a control plane; normal prompts, transcripts, and the
+  main session/model UI still use the local Channel.

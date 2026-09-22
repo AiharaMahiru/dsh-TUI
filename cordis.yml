@@ -90,6 +90,8 @@
     #  feeds the chosen session id through this env var (see
     #  src/sessionHistory.ts for the launcher contract).
     sessionId: !!js process.env.DSH_TUI_RESUME_SESSION ?? undefined
+    # Optional dsh Web origin. `/connect` asks interactively when unset.
+    remoteEndpoint: !!js process.env.DSH_TUI_REMOTE_ENDPOINT ?? undefined
     workspace: !!js process.env.DSH_TUI_WORKSPACE_TARGET ?? undefined
 
 # The DeepSeek adapter. Shipped default: full thinking at max effort.

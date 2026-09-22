@@ -269,6 +269,7 @@ dsh-tui
 | `/provider` | 无 | 交互式管理模型提供方（添加 / 编辑 / 删除；捆绑 dsh-auth 时可 **OAuth 订阅登录** ChatGPT / Claude / Grok，免 API key） |
 | `/login` | 无 | 凭证状态（来源、存储可写性、base URL） |
 | `/logout` | 无 | 登出说明（env 来源需删环境变量并重启） |
+| `/connect` | 无 / `<https 地址>` | 登录 dsh Web，查看额度，并管理云端会话、工作区、模型、Agent/权限预设、计划模式与本地化工作区 |
 | `/permission` | 无 / `<preset>` / `status` | 查看/切换权限预设与策略（无参打开选择器） |
 | `/add-dir` | 无 | 文件策略范围说明（以工作目录为根） |
 | `/hooks` | 无 | 占位：DSH hooks 未在组合中挂载时给出说明 |
@@ -282,9 +283,20 @@ dsh-tui
 
 dsh-TUI 不预装通用技能；`/skills` 浏览 DSH 发现的技能，可直调技能以 `/name` 加入命令菜单（详见 §4.8）。
 
-### 3.6 占位命令
+### 3.6 dsh Web 远程控制
 
-`/connect`：占位——DSH 暂无远程连接机制。
+`/connect` 打开远程控制向导。端点按以下顺序取得：命令参数、
+`DSH_TUI_REMOTE_ENDPOINT`、交互输入；公网端点必须使用 HTTPS。
+
+- 登录邮箱与密码都以遮罩显示，密码不会持久化。成功后只把 endpoint 与
+  session Cookie 写入 `~/.config/dsh-tui/remote-session.json`（0600），退出登录即清除。
+- 概览显示账户、额度、模型/会话/工作区数量；菜单可创建、选择、重命名或取消
+  会话，创建、选择或删除云端工作区，选择模型与 Agent/权限预设，并开关计划模式。
+- “本地化工作区”只授予用户明确选择的本机绝对路径；文件操作限制为相对路径下的
+  `list/read/write`，拒绝路径穿越、符号链接越界和过期版本覆盖。服务端未启用桌面
+  工作区桥时会明确显示 `WORKSPACE_BRIDGE_UNAVAILABLE`。
+- 当前这是远程**控制面**：普通提示词、转录流、主 `/model` 和 `/resume` 界面仍连接
+  本地 Channel。完整远程聊天 Channel 尚未接入，不能把 `/connect` 视为整套会话已经迁移到云端。
 
 ### 3.7 注册表命令（来自 DSH 生态，随组合动态并入 `/` 菜单）
 
@@ -384,7 +396,8 @@ dsh-TUI 不预装通用技能；`/skills` 浏览 DSH 发现的技能，可直调
   `anthropic-messages`）。
 - 添加/编辑后运行 `/model` 切换到新路由。
 - `/init` 创建 AGENTS.md；`/agents` 子代理列表；`/login` `/logout` 凭证管理。
-- `/permission` `/add-dir` 权限说明；`/hooks` `/vim` `/connect` 为占位。
+- `/permission` `/add-dir` 权限说明；`/hooks` 为兼容占位；`/vim` 是本地编辑模式开关；
+  `/connect` 提供 dsh Web 远程控制面（见 §3.6）。
 
 ## 5. 界面与状态栏
 

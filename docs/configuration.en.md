@@ -224,6 +224,7 @@ for the complete field reference.
 | `DSH_HOME` | Harness home (profiles, sessions, credentials, attachments); falls back to the upstream default `~/.dsh` |
 | `DSH_TUI_PERSONA` | Override the Agent persona injected by the composition |
 | `DSH_TUI_PRESET` | Override the default Agent preset for new sessions |
+| `DSH_TUI_REMOTE_ENDPOINT` | dsh Web HTTPS origin used by `/connect`; when unset the wizard asks, or pass it directly as `/connect https://chat.example.com` |
 | `DSH_TUI_THEME` | Pin a built-in (`auto`/`light`/`dark`/`dark-ansi`), static theme, or registered plugin theme ahead of persisted selection |
 | `DSH_TUI_DISABLE_MOUSE` | Temporarily disable mouse handling in fullscreen mode |
 | `DSH_TUI_DISABLE_TERMINAL_IMAGES` | Set to `1` to force Kitty/Sixel probing, preview reads/decoding, and terminal image rendering off, overriding config and /settings; text metadata remains visible |
@@ -239,7 +240,7 @@ for the complete field reference.
 The old `CC_TUI_*` and `DSH_CC_*` names come from earlier release naming and
 are no longer read as of this release; use the `DSH_TUI_*` prefix.
 
-Two directories are involved and neither substitutes for the other:
+Three local state locations are involved and none substitutes for another:
 
 - **Harness home**: `$DSH_HOME`, falling back to the upstream default `~/.dsh`.
   Holds profiles, sessions, credentials, and attachments. Early releases pinned
@@ -248,6 +249,10 @@ Two directories are involved and neither substitutes for the other:
   `$DSH_HOME`). Holds `/model` (persisted at `~/.dsh-tui/model.json`, surviving
   restart and `/new`), `/lang`, `/theme` and similar preferences plus
   `resume.txt`. Early releases wrote these under `$DSH_HOME` instead.
+- **Remote sign-in session**: `~/.config/dsh-tui/remote-session.json`
+  (directory mode 0700, file mode 0600). It stores only the endpoint and
+  session cookies; email, password, and API keys are never written there.
+  Signing out from `/connect` clears it.
 
 `DSH_TUI_RENDER_LOG` may capture visible prompts, tool arguments, and output.
 Do not attach it to a public issue without reviewing and redacting it.

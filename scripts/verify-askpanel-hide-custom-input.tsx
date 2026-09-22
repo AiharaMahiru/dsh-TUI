@@ -7,9 +7,11 @@
  *      （否则题变死局）。
  *   3. 多选题不带 hide（向导的模型选择题形态）：输入行保留，
  *      勾选 + 自定义补充同时生效（issue #9 默认行为不回退）。
+ *   4. maskInput：终端只渲染遮罩，提交值仍保留原文且明文不进屏幕。
  * 运行：node --import tsx/esm scripts/verify-askpanel-hide-custom-input.tsx
  */
 process.env.FORCE_COLOR = '3'
+process.env.DSH_TUI_LANG = 'zh'
 
 const [{ PassThrough, Writable }, React, { Terminal: XTerm }, { render }, { AskUserQuestionPanel }, { settle, settled, sleep, viewportLines }] = await Promise.all([
   import('node:stream'),
@@ -55,9 +57,13 @@ const app = await render(
 await settle(() => screen().includes('占位'))
 
 let failures = 0
+const failedChecks: string[] = []
 const check = (name: string, ok: boolean, extra = '') => {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${extra ? `  (${extra})` : ''}`)
-  if (!ok) failures++
+  if (!ok) {
+    failures++
+    failedChecks.push(name)
+  }
 }
 const eq = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 
@@ -135,6 +141,21 @@ stdin.write('\r')
 check('3 multi: 勾选 + 自定义补充同时生效',
   await settled(() => eq(answer, { selected: ['deepseek-chat'], custom: 'extra-model' })), JSON.stringify(answer))
 
+// ── 4. 凭据文本题：屏幕遮罩与提交原文分离 ───────────────────────────
+const maskSentinel = 'MASK_PASSWORD_SENTINEL_92741'
+await mount({
+  question: '输入远程登录密码',
+  maskInput: true,
+}, () => screen().includes('输入远程登录密码'))
+stdin.write(maskSentinel)
+await sleep(150) // 固定观察窗：明文按设计永远不会成为可轮询的屏幕条件
+check('4 mask: 终端屏幕不出现输入明文', !screen().includes(maskSentinel))
+check('4 mask: 输入内容显示为遮罩', screen().includes('••••'))
+stdin.write('\r')
+check('4 mask: 提交值仍保留原文',
+  await settled(() => eq(answer, { selected: [], custom: maskSentinel })))
+
 app.unmount()
+for (const name of failedChecks) console.error(`FAIL  ${name}`)
 console.log(failures === 0 ? '\nAll hide-custom-input checks passed' : `\n${failures} check(s) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

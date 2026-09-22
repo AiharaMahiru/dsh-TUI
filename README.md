@@ -145,7 +145,7 @@ Full reference: [Interaction and commands](docs/interaction.en.md).
 
 ## Built-in Commands
 
-`/resume` · `/home` · `/agentview` · `/bg` · `⌸` open the same session manager: workspace rail, live state, filter, ★ pins. Also `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`.
+`/resume` · `/home` · `/agentview` · `/bg` · `⌸` open the same session manager: workspace rail, live state, filter, ★ pins. Also `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/connect` `/update`.
 
 **Background sessions**: `/bg` or `←` on an empty prompt; `Esc` returns. They run in this process and stop when the TUI exits. Logs survive.
 
@@ -153,7 +153,7 @@ Full commands: [Interaction and commands](docs/interaction.en.md).
 
 ## Configuration & Extensions
 
-Agent presets, themes, MCP servers, environment variables: [Configuration](docs/configuration.en.md) · [Themes](docs/themes.en.md).
+Agent presets, themes, MCP servers, the dsh Web remote endpoint, and environment variables: [Configuration](docs/configuration.en.md) · [Themes](docs/themes.en.md).
 
 ## How It Works
 
@@ -172,6 +172,7 @@ Runtime path, module boundaries, performance notes and persistence locations: [A
 - `/model` switches by forking the session; the old session stays in `/resume`.
 - `Ctrl+V` needs platform clipboard tools; unsupported bitmap formats are rejected.
 - A background session lives inside this process and stops when the TUI exits.
+- `/connect` currently provides the dsh Web control plane (sign-in, quota, cloud sessions/workspaces, models, and modes). Normal prompts, transcript streaming, and the main `/model`/`/resume` UI still use the local Channel; this is not yet a complete remote chat channel.
 - `/thinking` is not persisted; `/compact` is unavailable under the `minimal` preset; `/update` needs a `dsh --profile` launch and is refused while a turn is running.
 
 Full list: [Architecture and limitations → Known limitations](docs/architecture.en.md#known-limitations).

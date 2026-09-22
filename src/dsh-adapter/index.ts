@@ -31,6 +31,9 @@ export const inject = ['agents']
 export interface Config {
   /** Existing session to attach; a fresh session is created when absent. */
   sessionId?: string
+  /** Optional dsh Web origin used by `/connect`. The remote password is
+   * never part of this config; only the resulting session Cookie is stored. */
+  remoteEndpoint?: string
   /** LLM provider route. The route resolves atomically (issue #67): when
    *  cordis.yml names BOTH `provider` and `model`, that pair wins; otherwise
    *  the `/model` choice persisted in `~/.dsh-tui/model.json` wins whole;
@@ -145,6 +148,7 @@ export interface Config {
 
 export const Config: Schema<Config> = Schema.object({
   sessionId: Schema.string().required(false),
+  remoteEndpoint: Schema.string().required(false),
   // No schema defaults on the route: a `.default()` here would make an
   // unset key indistinguishable from an explicit cordis.yml choice and the
   // persisted `/model` preference could never win (issue #30). The defaults

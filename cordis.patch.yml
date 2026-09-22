@@ -434,6 +434,8 @@
         # persisted `/preset` preference (~/.dsh-tui/agent-preset.json), which
         # wins over the roster default (standard).
         preset: !!js process.env.DSH_TUI_PRESET ?? undefined
+        # Optional dsh Web origin. `/connect` asks interactively when unset.
+        remoteEndpoint: !!js process.env.DSH_TUI_REMOTE_ENDPOINT ?? undefined
         workspace: !!js process.env.DSH_TUI_WORKSPACE_TARGET ?? undefined
         sessionId: !!js process.env.DSH_TUI_RESUME_SESSION ?? undefined
 

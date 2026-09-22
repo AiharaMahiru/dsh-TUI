@@ -280,6 +280,7 @@ The command menu = built-in commands (50) + DSH registry commands (`/plan` `/goa
 | `/provider` | none | interactive model-provider wizard (add / edit / delete; with dsh-auth bound, **OAuth subscription login** for ChatGPT / Claude / Grok, no API key) |
 | `/login` | none | credential status (source, store writability, base URL) |
 | `/logout` | none | logout notes (env source: delete the variable and restart) |
+| `/connect` | none / `<https origin>` | sign in to dsh Web, inspect quota, and manage cloud sessions, workspaces, models, Agent/permission presets, plan mode, and a localized workspace |
 | `/permission` | none / `<preset>` / `status` | view/switch permission preset and policy (no arg opens the selector) |
 | `/add-dir` | none | file-policy scope notes (rooted at the working directory) |
 | `/hooks` | none | placeholder: notes when DSH hooks aren't mounted in the composition |
@@ -293,9 +294,26 @@ The command menu = built-in commands (50) + DSH registry commands (`/plan` `/goa
 
 dsh-TUI ships no generic skills; `/skills` browses skills DSH discovers, and a direct-call skill joins the command menu as `/name` (see §4.8).
 
-### 3.6 Placeholder commands
+### 3.6 dsh Web remote control
 
-`/connect`: placeholder — DSH has no remote-connection mechanism yet.
+`/connect` opens the remote-control wizard. The endpoint comes from the
+command argument, `DSH_TUI_REMOTE_ENDPOINT`, or an interactive prompt, in that
+order. Public endpoints must use HTTPS.
+
+- Email and password input are masked, and the password is never persisted.
+  After sign-in, only the endpoint and session cookies are stored in
+  `~/.config/dsh-tui/remote-session.json` (0600); sign-out clears it.
+- The overview shows account, quota, and model/session/workspace counts. The
+  menu can create, select, rename, or cancel sessions; create, select, or delete
+  cloud workspaces; choose models and Agent/permission presets; and toggle plan mode.
+- A “localized workspace” grants only an explicitly selected absolute local
+  root. File operations are limited to relative `list/read/write` calls and
+  reject traversal, symlink escapes, and stale conditional writes. When the
+  server-side desktop bridge is disabled, the UI reports
+  `WORKSPACE_BRIDGE_UNAVAILABLE` explicitly.
+- This is currently the remote **control plane**. Normal prompts, transcript
+  streaming, and the main `/model` and `/resume` UI still use the local
+  Channel. A complete remote chat Channel is not connected yet.
 
 ### 3.7 Registry commands (from the DSH ecosystem, merged into the `/` menu)
 
@@ -399,7 +417,9 @@ Keys are in §2.7. Key points:
   `anthropic-messages`).
 - After add/edit, run `/model` to switch to the new route.
 - `/init` creates AGENTS.md; `/agents` subagent list; `/login` `/logout` credential management.
-- `/permission` `/add-dir` permission notes; `/hooks` `/vim` `/connect` are placeholders.
+- `/permission` and `/add-dir` show policy notes; `/hooks` remains a
+  compatibility placeholder; `/vim` toggles local editing; `/connect` provides
+  the dsh Web control plane described in §3.6.
 
 ## 5. UI and status bar
 

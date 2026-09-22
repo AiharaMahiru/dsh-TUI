@@ -127,7 +127,7 @@ TUI 启动后会在后台检查新版本，不阻塞首帧。有更新时输入 
 
 ## 内置命令
 
-`/resume` · `/home` · `/agentview` · `/bg` · `⌸` 打开同一个会话管理界面：工作区栏、实时状态、筛选、★ 固定。另有 `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/update`。
+`/resume` · `/home` · `/agentview` · `/bg` · `⌸` 打开同一个会话管理界面：工作区栏、实时状态、筛选、★ 固定。另有 `/model` `/new` `/compact` `/export` `/btw` `/tree` `/fork` `/rewind` `/settings` `/status` `/cost` `/jobs` `/skills` `/mcp` `/login` `/connect` `/update`。
 
 **后台会话**：`/bg` 或空输入按 `←`；按 `Esc` 回到它。跑在本进程内，TUI 退出即停止，日志保留。
 
@@ -135,7 +135,7 @@ TUI 启动后会在后台检查新版本，不阻塞首帧。有更新时输入 
 
 ## 配置与扩展
 
-Agent 预设、主题、MCP 服务器、环境变量：[配置参考](docs/configuration.md) · [主题系统](docs/themes.md)。
+Agent 预设、主题、MCP 服务器、dsh Web 远程端点与环境变量：[配置参考](docs/configuration.md) · [主题系统](docs/themes.md)。
 
 ## 工作原理
 
@@ -154,6 +154,7 @@ TUI 只负责交互与呈现：会话日志是唯一事实源，模型、工具�
 - `/model` 靠 fork 切换会话；旧会话留在 `/resume`。
 - `Ctrl+V` 需要平台剪贴板工具；不支持的位图格式直接拒绝。
 - 后台会话活在本进程内，TUI 退出即停止。
+- `/connect` 当前提供 dsh Web 控制面（登录、额度、云端会话/工作区、模型与模式）；普通提示词、转录流和主 `/model`/`/resume` 界面仍使用本地 Channel，尚不是完整远程聊天通道。
 - `/thinking` 不持久化；`/compact` 在 `minimal` 预设下不可用；`/update` 需 `dsh --profile` 启动，回合运行中会被拒绝。
 
 完整清单见[架构与限制](docs/architecture.md)。

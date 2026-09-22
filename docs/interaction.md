@@ -705,9 +705,14 @@ dsh-TUI 不预装通用技能；技能内容与发现规则由 DSH 及当前组�
 - Skill 命令由 host 注入对应 `SKILL.md` 的技能正文后执行，参数原样随行；
   技能内容与发现规则由 DSH 及当前组合负责。
 
-`/connect`、`/hooks` 当前是兼容占位命令。
+`/connect` 是 dsh Web 远程控制向导：可从参数、`DSH_TUI_REMOTE_ENDPOINT` 或
+交互输入取得 HTTPS 端点，完成遮罩登录、额度查看、云端会话/工作区、模型、
+Agent/权限预设、计划模式和本机目录绑定。`/hooks` 仍是兼容占位命令。
 
-- 当 DSH 组合没有对应能力时，会给出明确说明，而不是静默执行。
+- 远程密码不持久化；本地仅以 0600 保存 endpoint 与 session Cookie，退出登录清除。
+- 本机目录只暴露明确授权根内的相对 `list/read/write`；服务端桥未启用时显示
+  `WORKSPACE_BRIDGE_UNAVAILABLE`，不会静默回退到不受约束的文件访问。
+- `/connect` 当前是控制面；普通提示词、转录和主会话/模型界面仍使用本地 Channel。
 
 ## 外部注入通道（编辑器集成）
 

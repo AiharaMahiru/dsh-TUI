@@ -34,6 +34,8 @@ import type { TuiShortcutHost } from '../dsh-adapter/shortcuts.js'
 import type { TuiThemeHost } from '../dsh-adapter/themes.js'
 import type { TuiRewindMode } from '../dsh-adapter/extension-events.js'
 import { runProviderWizard } from '../dsh-adapter/providerWizard.js'
+import { runRemoteWizard } from '../dsh-adapter/remote-wizard.js'
+import type { RemoteTuiControl, RemoteTuiSnapshot } from '../adapter/ports/remote-control.js'
 import { ApprovalStore } from '../dsh-adapter/approvals.js'
 import { AskUserQuestionPanel } from '../components/questions/AskUserQuestionPanel.js'
 import { ApprovalPanel } from '../components/approvals/ApprovalPanel.js'
@@ -256,6 +258,33 @@ let fallbackApprovalStore: ApprovalStore | undefined
 let fallbackDialogStore: TuiDialogStore | undefined
 let fallbackStatusStore: TuiStatusStore | undefined
 
+const EMPTY_REMOTE_SNAPSHOT: RemoteTuiSnapshot = Object.freeze({
+  version: 0,
+  phase: 'disconnected',
+  modelCount: 0,
+  sessionCount: 0,
+  workspaceCount: 0,
+})
+
+function remoteStatusText(snapshot: RemoteTuiSnapshot): string {
+  let endpoint = snapshot.endpoint ?? '-'
+  try { endpoint = new URL(endpoint).host } catch { endpoint = '-' }
+  if (snapshot.phase === 'connecting') return t('remote-status-connecting', { endpoint })
+  if (snapshot.phase === 'login-required') return t('remote-status-login', { endpoint })
+  if (snapshot.phase === 'authenticated') {
+    const quota = snapshot.quota?.remainingUsd === undefined
+      ? '-'
+      : `${snapshot.quota.remainingUsd} ${snapshot.quota.currency ?? 'USD'}`
+    return t('remote-status-ready', {
+      endpoint,
+      user: snapshot.user?.displayName ?? '-',
+      quota,
+      session: snapshot.activeSession ?? t('remote-none'),
+    })
+  }
+  return t('remote-status-error', { endpoint, code: snapshot.errorCode ?? 'REMOTE_UNAVAILABLE' })
+}
+
 /** Identity of one caret-preview dismissal: the token (its title) on the
  *  image, so the same image staged twice is dismissed per token. */
 function peekKey(image: TranscriptImage, title: string | undefined): string {
@@ -264,6 +293,7 @@ function peekKey(image: TranscriptImage, title: string | undefined): string {
 
 export function Chat({
   channel,
+  remoteControl,
   questionStore,
   approvalStore,
   extensionDialogs,
@@ -281,6 +311,8 @@ export function Chat({
   openHomeOnBoot,
 }: {
   channel: Channel
+  /** Optional dsh Web adapter. Protocol details remain in dsh-adapter. */
+  remoteControl?: RemoteTuiControl
   renderScene?: (id: string, channel: Channel) => React.ReactNode
   questionStore: QuestionStore
   /**
@@ -359,6 +391,15 @@ export function Chat({
   useExternalVersion(channel.subscribe, () => channel.version)
   // Re-render on language switches so the whole UI hot-swaps its strings.
   React.useSyncExternalStore(subscribeLang, getLang)
+  const subscribeRemote = React.useCallback(
+    (listener: () => void) => remoteControl?.subscribe(listener) ?? (() => undefined),
+    [remoteControl],
+  )
+  const readRemote = React.useCallback(
+    () => remoteControl?.snapshot() ?? EMPTY_REMOTE_SNAPSHOT,
+    [remoteControl],
+  )
+  const remoteSnapshot = React.useSyncExternalStore(subscribeRemote, readRemote)
   const promptEditorOpen = usePromptEditorOpen()
   // The pending ask-user-question (DSH user-interaction seam): the model's
   // `ask_user_question` tool parks here until the panel is answered.
@@ -2535,7 +2576,17 @@ export function Chat({
         return true
       case 'connect':
         setHelpOpen(false)
-        channel.pushLocal('/connect', [t('connect-none')])
+        if (!remoteControl) {
+          channel.pushLocal('/connect', [t('connect-none')])
+          return true
+        }
+        void runRemoteWizard({
+          control: remoteControl,
+          endpoint: rawInput.trim() || undefined,
+          ask: (request, options) => questionStore.ask(request, options),
+          notify: (text, options) => channel.notify(text, options),
+          pushLocal: (title, lines) => channel.pushLocal(title, lines),
+        })
         return true
       default: {
         // Plugin-registered command (DSH command registry): dispatch through
@@ -4231,6 +4282,13 @@ export function Chat({
         ) : questionPanelNode !== null ? (
           questionPanelNode
         ) : null}
+        {remoteSnapshot.phase !== 'disconnected' && remoteSnapshot.endpoint !== undefined && (
+          <Box flexDirection="row">
+            <Text color={remoteSnapshot.phase === 'error' ? 'error' : 'suggestion'} dimColor={remoteSnapshot.phase !== 'error'}>
+              {remoteStatusText(remoteSnapshot)}
+            </Text>
+          </Box>
+        )}
         <PromptInput
           key="prompt-input"
           channel={channel}
