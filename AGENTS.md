@@ -2,6 +2,10 @@
 
 dsh-TUI 是 DeepSeek Harness 的终端界面插件：零核心改动、纯插件挂载的交互式 TUI（`@deepseek-harness-tui/dsh-tui`）。Agent、会话、模型、工具、持久化与策略域由 DeepSeek Harness 拥有，本包只消费它们。改动前先读 [docs/contributing.md](docs/contributing.md)（本仓库共享开发契约的权威文本）与 [ADAPTER.md](ADAPTER.md)（上游边界与契约）；整体结构见 [docs/architecture.md](docs/architecture.md)。
 
+## MewClaw 产品约定
+
+本 fork 的 TUI 与 Web、Windows Desktop、Feishu 属于同一个 MewClaw。Web 是产品、交互与共享策略基线，DSH 官方上游是运行时与能力契约主线；统一架构以 [MewClaw 主线文档](https://github.com/AiharaMahiru/MewClaw/blob/master/docs/mewclaw-architecture.md) 为准。共享功能和修复必须评估四端影响；TUI 保留终端呈现，消费共享业务语义，不另建 Agent、会话、工具或授权系统。共享传输目前有来自 MewClaw 的源码副本，变更时必须同时核对源实现；这不代表已存在自动同步门禁。平台版本和发布节奏可以不同，但不形成独立产品策略，四端一体不取消 adapter 边界、Scope 或资源归属检查。
+
 ## 仓库布局
 
 ```

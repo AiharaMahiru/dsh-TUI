@@ -23,6 +23,8 @@
 
 ## MewClaw fork（2026-09-23）
 
+Web、TUI、Windows Desktop、Feishu 是同一个 MewClaw 的四个接入端。Web 是产品行为与共享策略基线，DSH 官方上游拥有运行时契约；TUI 保留终端呈现，通过 adapter 消费同一能力语义。见[统一架构](https://github.com/AiharaMahiru/MewClaw/blob/master/docs/mewclaw-architecture.md)。不同仓库和发布节奏不改变能力归属，也不绕过会话授权。
+
 本仓库为 `AiharaMahiru/dsh-TUI`，`main` 与 `feat/dsh-tui-remote-workspace` 均包含 MewClaw 登录及本机工作区的云端账号推理。这些 fork 改动尚未发布到上游 npm 包，请使用本 fork 的构建；下文 registry 快速开始和 `/update` 跟随上游发行，不能安装这些新增能力。
 
 已验证宿主为 DSH `0.1.5-rc.1`、Cordis `4.0.2`，TUI 源码版本为 `0.10.2`。使用方法见[本地账号工作区](docs/local-account-workspace.md)，含子模块的源码构建见[从源码开发](docs/getting-started.md#从源码开发)。云端账号推理无需在本机配置供应商 API Key，文件工具和审批仍由 DSH 管理。

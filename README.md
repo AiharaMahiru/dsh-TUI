@@ -24,6 +24,8 @@
 
 ## MewClaw fork (2026-09-23)
 
+Web, TUI, Windows Desktop and Feishu are four interfaces of one MewClaw product. Web is the baseline for product behavior and shared policy; upstream DSH owns runtime contracts. TUI keeps terminal presentation while consuming the same capability semantics through its adapter. See the [unified architecture](https://github.com/AiharaMahiru/MewClaw/blob/master/docs/mewclaw-architecture.md). Separate repositories and release schedules do not change this ownership or bypass session authorization.
+
 This is `AiharaMahiru/dsh-TUI`. Both `main` and `feat/dsh-tui-remote-workspace` include MewClaw sign-in and cloud inference for local workspaces. These fork changes are not published to the upstream npm package. Use a build of this fork; the registry quick start and `/update` below follow upstream releases and do not install these additions.
 
 The checked host is DSH `0.1.5-rc.1`, Cordis `4.0.2`, with TUI source version `0.10.2`. Start with [local account workspaces](docs/local-account-workspace.en.md). Source builds require submodules; see [source development](docs/getting-started.en.md#develop-from-source). Cloud account inference needs no local provider API key. Normal DSH tool and approval policies still apply.
