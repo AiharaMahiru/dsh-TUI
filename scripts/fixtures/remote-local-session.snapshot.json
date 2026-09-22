@@ -1,0 +1,74 @@
+[
+  {
+    "type": "user/message",
+    "content": [
+      {
+        "type": "text",
+        "text": "本地工作区文件验收：先用 read 读取输入.txt，再用 write 将读取到的完整内容原样写入输出.txt。只处理这两个文件，完成后回复“本机验收完成”。"
+      }
+    ]
+  },
+  {
+    "type": "assistant/message",
+    "content": [
+      {
+        "type": "tool-call",
+        "id": "local-read",
+        "name": "read",
+        "arguments": "{\"file_path\":\"<workspace>/输入.txt\"}"
+      }
+    ]
+  },
+  {
+    "type": "tool/result",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "local-read",
+        "content": [
+          {
+            "type": "text",
+            "text": "<path><workspace>/输入.txt</path>\n<type>file</type>\n<content>\n1: 本地工作区验收\n\n(End of file - total 1 lines)\n</content>"
+          }
+        ],
+        "isError": false
+      }
+    ]
+  },
+  {
+    "type": "assistant/message",
+    "content": [
+      {
+        "type": "tool-call",
+        "id": "local-write",
+        "name": "write",
+        "arguments": "{\"file_path\":\"<workspace>/输出.txt\",\"content\":\"本地工作区验收\"}"
+      }
+    ]
+  },
+  {
+    "type": "tool/result",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "local-write",
+        "content": [
+          {
+            "type": "text",
+            "text": "<path><workspace>/输出.txt</path>\n<type>file</type>\n<content>\nCreated file\n</content>"
+          }
+        ],
+        "isError": false
+      }
+    ]
+  },
+  {
+    "type": "assistant/message",
+    "content": [
+      {
+        "type": "text",
+        "text": "本机验收完成"
+      }
+    ]
+  }
+]

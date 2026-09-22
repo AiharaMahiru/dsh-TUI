@@ -34,6 +34,12 @@ export interface Config {
   /** Optional dsh Web origin used by `/connect`. The remote password is
    * never part of this config; only the resulting session Cookie is stored. */
   remoteEndpoint?: string
+  /** 云端账号模型推理超时；会话与工具仍在本机运行。 */
+  remoteModelTimeoutMs?: number
+  /** 账号模型在本地 Harness 中的上下文预算。 */
+  remoteModelContextWindow?: number
+  /** 账号模型单次回复的最大 token 预算。 */
+  remoteModelMaxTokens?: number
   /** LLM provider route. The route resolves atomically (issue #67): when
    *  cordis.yml names BOTH `provider` and `model`, that pair wins; otherwise
    *  the `/model` choice persisted in `~/.dsh-tui/model.json` wins whole;
@@ -149,6 +155,9 @@ export interface Config {
 export const Config: Schema<Config> = Schema.object({
   sessionId: Schema.string().required(false),
   remoteEndpoint: Schema.string().required(false),
+  remoteModelTimeoutMs: Schema.number().step(1).min(1000).max(600000).default(120000),
+  remoteModelContextWindow: Schema.number().step(1).min(1024).max(2097152).default(262144),
+  remoteModelMaxTokens: Schema.number().step(1).min(1).max(262144).default(32768),
   // No schema defaults on the route: a `.default()` here would make an
   // unset key indistinguishable from an explicit cordis.yml choice and the
   // persisted `/model` preference could never win (issue #30). The defaults
@@ -231,6 +240,15 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   // natural-language notice now renders in the logo header under the
   // startup tip (LogoV2 ← upstreamDriftSummary); CI keeps the hard gate
   // via scripts/verify-upstream-contract.ts.
-  const { apply: tuiApply } = await import('./plugin.js')
+  const { apply: tuiApply, resolveTuiHostMode } = await import('./plugin.js')
+  if (resolveTuiHostMode() === 'interactive') {
+    const { installAccountModel } = await import('./remote/account-model.js')
+    installAccountModel(ctx, {
+      endpoint: config.remoteEndpoint ?? process.env.DSH_TUI_REMOTE_ENDPOINT,
+      timeoutMs: config.remoteModelTimeoutMs ?? 120000,
+      contextWindow: config.remoteModelContextWindow ?? 262144,
+      maxTokens: config.remoteModelMaxTokens ?? 32768,
+    })
+  }
   return tuiApply(ctx, config)
 }

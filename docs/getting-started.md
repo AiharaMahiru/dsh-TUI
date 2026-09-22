@@ -260,7 +260,7 @@ $DSH_HOME/profiles/dsh-tui/cordis.patch.yml
 ## 从源码开发
 
 ```sh
-git clone --recurse-submodules https://github.com/ccch1mneyyy/dsh-TUI.git
+git clone --recurse-submodules https://github.com/AiharaMahiru/dsh-TUI.git
 cd dsh-TUI
 pnpm install --frozen-lockfile
 pnpm build

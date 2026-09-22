@@ -665,3 +665,5 @@ Agent/permission preset, plan-mode, and local-directory binding operations.
   `WORKSPACE_BRIDGE_UNAVAILABLE` instead of falling back to unrestricted access.
 - `/connect` is currently a control plane; normal prompts, transcripts, and the
   main session/model UI still use the local Channel.
+
+- After sign-in, select **MewClaw 云端账号** in the main `/model` picker to use cloud inference in a local session. `/workspace open <directory>` selects a local directory; no remote workspace binding is required.

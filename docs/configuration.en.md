@@ -52,9 +52,13 @@ A complete common override looks like this:
 
 | Field | Default/source | Meaning |
 | --- | --- | --- |
+| `remoteEndpoint` | Stored sign-in endpoint | Cloud endpoint for `/connect` and local account inference |
+| `remoteModelTimeoutMs` | `120000` | Inference timeout, 1000–600000 milliseconds |
+| `remoteModelContextWindow` | `262144` | Local context budget, 1024–2097152 tokens |
+| `remoteModelMaxTokens` | `32768` | Reply budget, 1–262144 tokens |
 | `provider` | Harness `agentDefaultModel`; bare compositions fall back to `deepseek-official` | DSH model route; provider and model must both be set to form an explicit route |
 | `model` | Harness `agentDefaultModel`; bare compositions fall back to `deepseek-flash` | Startup model; `/model` can switch through a session fork |
-| `cwd` | git worktree root containing the launch directory (`process.cwd()` when outside any worktree; a dotfiles repo at `$HOME` does not count) | TUI-side session workspace: agent meta, `@` completion/mention expansion, /resume filtering, statusline; resuming an existing session adopts that session's persisted cwd. Note the bash/fs-policy/sandbox roots are still owned by the composition layer's cordis config (default: the launch directory, governed by dsh-base) and may differ from this session-side cwd |
+| `cwd` | git worktree root containing the launch directory (`process.cwd()` when outside any worktree; a dotfiles repo at `$HOME` does not count) | TUI-side session workspace: agent meta, `@` completion/mention expansion, /resume filtering, statusline; resuming an existing session adopts that session's persisted cwd. On the validated DSH 0.1.5-rc.1 runtime, sandbox-policy prefers session header.cwd and uses its configured root as fallback; custom filesystem and shell providers still require configuration review |
 | `workspace` | unset | Startup workspace target: a local path, `file://` URL, or plugin-provided URI; takes precedence over `cwd` |
 | `effort` | normally `max` in the bundle | Reasoning effort applied to every request (validated against the runtime model's levels; invalid levels silently fall back to the adapter default), also shown in the header at startup. Precedence: /settings default reasoning effort `effortDefault` (settings.yaml user layer; `auto` defers) > this field > the persisted `/effort` choice (`~/.dsh-tui/effort.json`) > the model default |
 | `modes` | built-in trio | Shift+Tab session-mode cycle (plan/sandbox/approval atom bundles); defaults to default → plan → full-access |

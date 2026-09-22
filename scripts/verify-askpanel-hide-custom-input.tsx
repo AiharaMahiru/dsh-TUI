@@ -148,7 +148,7 @@ await mount({
   maskInput: true,
 }, () => screen().includes('输入远程登录密码'))
 stdin.write(maskSentinel)
-await sleep(150) // 固定观察窗：明文按设计永远不会成为可轮询的屏幕条件
+await sleep(150) // 固定窗:探针 明文按设计永远不会成为可轮询的屏幕条件
 check('4 mask: 终端屏幕不出现输入明文', !screen().includes(maskSentinel))
 check('4 mask: 输入内容显示为遮罩', screen().includes('••••'))
 stdin.write('\r')

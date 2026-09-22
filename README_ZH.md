@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@deepseek-harness-tui/dsh-tui"><img alt="npm" src="https://img.shields.io/npm/v/@deepseek-harness-tui/dsh-tui?style=flat-square&color=4b6fff"></a>
-  <a href="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/AiharaMahiru/dsh-TUI/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/AiharaMahiru/dsh-TUI/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square"></a>
   <img alt="Public beta" src="https://img.shields.io/badge/status-public%20beta-7da1de?style=flat-square">
   <a href="https://github.com/ccch1mneyyy/dsh-TUI/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/ccch1mneyyy/dsh-TUI?style=flat-square&color=4b6fff"></a>
@@ -20,6 +20,12 @@
 
 > 面向 DeepSeek Harness 的交互式终端界面插件：像素鲸鱼顶栏、实时工作状态、流式思考展示、双击 Esc 时间回溯、上下文进度条与 TPS 仪表。
 > 零核心改动，纯插件挂载。安装即启用，卸载不留核心补丁。
+
+## MewClaw fork（2026-09-23）
+
+本仓库为 `AiharaMahiru/dsh-TUI`，`main` 与 `feat/dsh-tui-remote-workspace` 均包含 MewClaw 登录及本机工作区的云端账号推理。这些 fork 改动尚未发布到上游 npm 包，请使用本 fork 的构建；下文 registry 快速开始和 `/update` 跟随上游发行，不能安装这些新增能力。
+
+已验证宿主为 DSH `0.1.5-rc.1`、Cordis `4.0.2`，TUI 源码版本为 `0.10.2`。使用方法见[本地账号工作区](docs/local-account-workspace.md)，含子模块的源码构建见[从源码开发](docs/getting-started.md#从源码开发)。云端账号推理无需在本机配置供应商 API Key，文件工具和审批仍由 DSH 管理。
 
 ## 功能亮点
 
@@ -148,6 +154,10 @@ TUI 只负责交互与呈现：会话日志是唯一事实源，模型、工具�
 
 运行链路、模块边界、性能要点与持久化位置见[架构与限制](docs/architecture.md)。
 
+## 使用本机工作区与云端账号模型
+
+运行 `dsh-tui "D:\项目\我的工程"`（Windows）或 `dsh-tui /path/to/project`；也可在会话中执行 `/workspace open <目录>`。用 `/connect https://chat.rwr.ink` 登录后，在主界面的 `/model` 选择「MewClaw 云端账号」，然后正常聊天。文件工具和会话历史留在本机，模型请求使用云端账号；此模式不需要云端工作区桥接。详见[本地账号工作区](docs/local-account-workspace.md)。
+
 ## 已知限制
 
 - 注入的插件上下文没有独立展示，计入上下文分段。
@@ -169,7 +179,7 @@ pnpm build
 pnpm smoke
 ```
 
-`lib/types/` 是被忽略的生成物。`pnpm build` 从干净输出目录重编译，并跑构建门禁。**不支持 Git URL 安装**。源码 manifest 把 `@dsh-std/*` 保留为 workspace 依赖，`vendor/dsh-std` 是子模块，pnpm ≥11 还默认拒绝 git 托管的 `prepare` 脚本。请安装 registry 包：`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`。渲染、问卷或工具卡改动还需对应的回归脚本。
+`lib/types/` 是被忽略的生成物。`pnpm build` 从干净输出目录重编译，并跑构建门禁。**不支持 Git URL 安装**。源码 manifest 把 `@dsh-std/*` 保留为 workspace 依赖，`vendor/dsh-std` 是子模块，pnpm ≥11 还默认拒绝 git 托管的 `prepare` 脚本。上游发行可安装 registry 包：`dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`。渲染、问卷或工具卡改动还需对应的回归脚本。
 
 ## 插件生态
 

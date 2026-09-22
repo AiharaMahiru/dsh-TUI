@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@deepseek-harness-tui/dsh-tui"><img alt="npm" src="https://img.shields.io/npm/v/@deepseek-harness-tui/dsh-tui?style=flat-square&color=4b6fff"></a>
-  <a href="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ccch1mneyyy/dsh-TUI/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/AiharaMahiru/dsh-TUI/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/AiharaMahiru/dsh-TUI/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square"></a>
   <img alt="Public beta" src="https://img.shields.io/badge/status-public%20beta-7da1de?style=flat-square">
   <a href="https://github.com/ccch1mneyyy/dsh-TUI/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/ccch1mneyyy/dsh-TUI?style=flat-square&color=4b6fff"></a>
@@ -21,6 +21,12 @@
 > pixel-whale header, live work status, streaming thinking, double-Esc time
 > rewind, a context progress bar, and a TPS gauge. It mounts as a pure plugin,
 > with no core changes. Install to enable; uninstall leaves no patches behind.
+
+## MewClaw fork (2026-09-23)
+
+This is `AiharaMahiru/dsh-TUI`. Both `main` and `feat/dsh-tui-remote-workspace` include MewClaw sign-in and cloud inference for local workspaces. These fork changes are not published to the upstream npm package. Use a build of this fork; the registry quick start and `/update` below follow upstream releases and do not install these additions.
+
+The checked host is DSH `0.1.5-rc.1`, Cordis `4.0.2`, with TUI source version `0.10.2`. Start with [local account workspaces](docs/local-account-workspace.en.md). Source builds require submodules; see [source development](docs/getting-started.en.md#develop-from-source). Cloud account inference needs no local provider API key. Normal DSH tool and approval policies still apply.
 
 ## Highlights
 
@@ -166,6 +172,10 @@ The TUI handles interaction and presentation. The session log is the source of t
 
 Runtime path, module boundaries, performance notes and persistence locations: [Architecture and limitations](docs/architecture.en.md).
 
+## Local workspaces with cloud account models
+
+Run `dsh-tui "D:\Projects\My Project"` on Windows or `dsh-tui /path/to/project`, or use `/workspace open <directory>` inside the TUI. Sign in with `/connect https://chat.rwr.ink`, then select **MewClaw 云端账号** in the main `/model` picker. Chat normally: tools and session history run locally while inference uses your cloud account. This mode does not require the cloud workspace bridge. See [local account workspaces](docs/local-account-workspace.en.md).
+
 ## Known Limitations
 
 - Injected plugin context has no standalone display; it counts into the context segments.
@@ -191,7 +201,7 @@ pnpm smoke
 clean output directory and runs the build gates. **Git URL installs are not
 supported.** The source manifest keeps `@dsh-std/*` as workspace deps and
 `vendor/dsh-std` as a submodule. pnpm ≥11 also refuses git-hosted `prepare`
-scripts by default. Install the registry package instead:
+scripts by default. For upstream releases, install the registry package:
 `dsh plugin --profile dsh-tui add @deepseek-harness-tui/dsh-tui`. Rendering,
 questionnaire, or tool-card changes also need the matching regression scripts.
 
